@@ -1,0 +1,69 @@
+[flake8]
+# Maximum line length
+max-line-length = 100
+
+# Maximum complexity for functions
+max-complexity = 10
+
+# Codes to ignore
+# E203: whitespace before ':' (conflicts with black)
+# W503: line break before binary operator (conflicts with black)
+# E501: line too long (we use max-line-length)
+# D100: Missing docstring in public module
+# D104: Missing docstring in public package
+# D105: Missing docstring in magic method
+# D107: Missing docstring in __init__
+extend-ignore = E203,W503,E501,D100,D104,D105,D107
+
+# Exclude files and directories
+exclude =
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    env,
+    build,
+    dist,
+    *.egg-info,
+    .mypy_cache,
+    .pytest_cache,
+    .ruff_cache,
+    migrations,
+    node_modules
+
+# Per-file ignores
+per-file-ignores =
+    __init__.py:F401,D104
+    tests/*:D100,D101,D102,D103
+    test_*.py:D100,D101,D102,D103
+
+# Enable these plugins
+enable-extensions = 
+    # Naming conventions
+    N,
+    # Bugbear warnings
+    B,
+    # Comprehensions
+    C4,
+    # Simplify
+    SIM,
+    # Docstrings
+    D
+
+# Docstring convention (google, numpy, or pep257)
+docstring-convention = google
+
+# McCabe complexity checker
+max-complexity = 10
+
+# Format for error messages
+format = %(path)s:%(row)d:%(col)d: %(code)s %(text)s
+
+# Show source code for errors
+show-source = True
+
+# Count total errors
+statistics = True
+
+# Count errors
+count = True

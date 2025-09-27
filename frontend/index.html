@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniForge - AI Robotic Task Execution</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --bg-dark: #1f2937;
+            --bg-darker: #111827;
+            --text-light: #f3f4f6;
+            --text-dim: #9ca3af;
+            --border-color: #374151;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-dark);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .header .subtitle {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+        }
+        
+        /* Control Panel */
+        .control-panel {
+            background: var(--bg-dark);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .prompt-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .prompt-box {
+            flex: 1;
+            padding: 12px;
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-light);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .prompt-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .execute-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--primary-color), #1e40af);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .execute-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+        }
+        
+        .execute-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Options */
+        .options {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .option input[type="number"] {
+            width: 80px;
+            padding: 4px 8px;
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            color: var(--text-light);
+        }
+        
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Panel Styles */
+        .panel {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: var(--bg-darker);
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+        
+        .panel-content {
+            padding: 20px;
+        }
+        
+        /* Console Panel */
+        .console {
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            background: #0d1117;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .console-line {
+            margin: 2px 0;
+            word-wrap: break-word;
+        }
+        
+        .console-line.info {
+            color: #58a6ff;
+        }
+        
+        .console-line.success {
+            color: #56d364;
+        }
+        
+        .console-line.error {
+            color: #f85149;
+        }
+        
+        .console-line.warning {
+            color: #d29922;
+        }
+        
+        .console-line.phase {
+            color: #bc8cff;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .console-line.metric {
+            color: #79c0ff;
+            padding-left: 20px;
+        }
+        
+        /* Progress Bar */
+        .progress-container {
+            margin-bottom: 15px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-darker);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        
+        .progress-text {
+            margin-top: 5px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        
+        /* Metrics Panel */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 200px;
+        }
+        
+        /* Visualization Panel */
+        .viz-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .sim-canvas {
+            width: 100%;
+            height: 250px;
+            background: #0d1117;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .video-container {
+            width: 100%;
+            height: 250px;
+            background: #0d1117;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .video-placeholder {
+            color: var(--text-dim);
+            text-align: center;
+        }
+        
+        .video-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        /* Status Badge */
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-badge.idle {
+            background: var(--bg-darker);
+            color: var(--text-dim);
+        }
+        
+        .status-badge.running {
+            background: rgba(37, 99, 235, 0.2);
+            color: #60a5fa;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+        
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        
+        /* Phase Banner */
+        .phase-banner {
+            background: var(--bg-dark);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .phase-title {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .phase-track {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .phase-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        
+        .phase-indicator {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-darker);
+            border-radius: 3px;
+            position: relative;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
+        .phase-indicator::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .phase-item.active .phase-indicator::after {
+            width: 100%;
+            animation: phaseProgress 1s ease-out;
+        }
+        
+        .phase-item.completed .phase-indicator::after {
+            width: 100%;
+            background: var(--secondary-color);
+        }
+        
+        .phase-item.failed .phase-indicator::after {
+            width: 100%;
+            background: var(--danger-color);
+        }
+        
+        .phase-item.pending .phase-indicator::after {
+            width: 0%;
+        }
+        
+        @keyframes phaseProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        .phase-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-darker);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 18px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .phase-item.active .phase-icon {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.5);
+            animation: pulsate 2s infinite;
+        }
+        
+        .phase-item.completed .phase-icon {
+            background: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .phase-item.failed .phase-icon {
+            background: var(--danger-color);
+            border-color: var(--danger-color);
+        }
+        
+        @keyframes pulsate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .phase-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+        
+        .phase-item.active .phase-label {
+            color: var(--text-light);
+            font-weight: 600;
+        }
+        
+        .phase-item.completed .phase-label {
+            color: var(--secondary-color);
+        }
+        
+        .phase-time {
+            font-size: 10px;
+            color: var(--text-dim);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .phase-item.completed .phase-time,
+        .phase-item.active .phase-time {
+            opacity: 1;
+        }
+        
+        .phase-connector {
+            position: absolute;
+            top: 20px;
+            right: -5px;
+            width: 10px;
+            height: 2px;
+            background: var(--border-color);
+            z-index: -1;
+        }
+        
+        .phase-item:last-child .phase-connector {
+            display: none;
+        }
+        
+        .phase-item.completed .phase-connector {
+            background: var(--secondary-color);
+        }
+        
+        /* Current Phase Display */
+        .current-phase-display {
+            background: linear-gradient(135deg, var(--bg-darker), var(--bg-dark));
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .current-phase-title {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .current-phase-subtitle {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+        
+        /* Vision Offset Display */
+        .vision-display {
+            display: none;
+            background: linear-gradient(135deg, var(--bg-dark), #1a2332);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 30px rgba(37, 99, 235, 0.2);
+            animation: visionPulse 0.5s ease-out;
+        }
+        
+        @keyframes visionPulse {
+            0% {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+            50% {
+                transform: scale(1.02);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .vision-display.active {
+            display: block;
+        }
+        
+        .vision-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .vision-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .vision-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .vision-status.aligned {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+        
+        .vision-status.misaligned {
+            background: rgba(251, 146, 60, 0.2);
+            color: #fb923c;
+        }
+        
+        .vision-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 900px) {
+            .vision-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .vision-offset-display {
+            background: var(--bg-darker);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        
+        .offset-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .offset-values {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 10px;
+        }
+        
+        .offset-axis {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .offset-axis-label {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+        
+        .offset-value {
+            font-size: 32px;
+            font-weight: bold;
+            font-family: 'Monaco', 'Courier New', monospace;
+        }
+        
+        .offset-value.positive {
+            color: #fb923c;
+        }
+        
+        .offset-value.negative {
+            color: #60a5fa;
+        }
+        
+        .offset-value.zero {
+            color: #34d399;
+        }
+        
+        .offset-unit {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-left: 4px;
+        }
+        
+        .vision-arrow {
+            width: 100px;
+            height: 100px;
+            margin: 10px auto;
+            position: relative;
+        }
+        
+        .arrow-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .vision-magnitude {
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .magnitude-label {
+            font-size: 12px;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+        
+        .magnitude-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+        
+        .vision-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .vision-metric {
+            text-align: center;
+            padding: 8px;
+            background: var(--bg-darker);
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .vision-metric-label {
+            font-size: 10px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        
+        .vision-metric-value {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: var(--bg-darker);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-light);
+        }
+        
+        .stat-unit {
+            font-size: 14px;
+            color: var(--text-dim);
+            font-weight: normal;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--text-dim);
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Code Preview */
+        .code-preview {
+            background: #0d1117;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .code-preview pre {
+            margin: 0;
+            color: #e6edf3;
+        }
+        
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-light);
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn:hover {
+            background: var(--border-color);
+        }
+        
+        .action-btn.primary {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .action-btn.primary:hover {
+            background: #1e40af;
+        }
+        
+        /* Rerun button special styling */
+        #rerunScript {
+            background: linear-gradient(135deg, var(--secondary-color), #059669);
+            border-color: var(--secondary-color);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        #rerunScript:hover:not(:disabled) {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        #rerunScript:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        #rerunScript.running {
+            animation: pulse 2s infinite;
+        }
+        
+        .rerun-log-line {
+            margin: 2px 0;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        
+        .rerun-log-line.info {
+            color: #58a6ff;
+        }
+        
+        .rerun-log-line.success {
+            color: #56d364;
+        }
+        
+        .rerun-log-line.error {
+            color: #f85149;
+        }
+        
+        .rerun-log-line.output {
+            color: #e6edf3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🤖 CogniForge</h1>
+            <div class="subtitle">AI-Powered Robotic Task Learning & Execution Pipeline</div>
+        </div>
+        
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="prompt-container">
+                <input 
+                    type="text" 
+                    id="promptBox" 
+                    class="prompt-box" 
+                    placeholder="Enter task description (e.g., 'Pick up the blue cube and place it on the red platform')"
+                    value="Pick up the blue cube and place it on the red platform"
+                >
+                <button id="executeBtn" class="execute-btn">
+                    <span id="btnIcon">▶</span>
+                    <span id="btnText">Execute</span>
+                </button>
+            </div>
+            
+            <div class="options">
+                <div class="option">
+                    <input type="checkbox" id="useVision" checked>
+                    <label for="useVision">Use Vision</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="useGPT">
+                    <label for="useGPT">GPT Rewards</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="dryRun" checked>
+                    <label for="dryRun">Dry Run</label>
+                </div>
+                <div class="option">
+                    <label for="bcEpochs">BC Epochs:</label>
+                    <input type="number" id="bcEpochs" value="5" min="1" max="100">
+                </div>
+                <div class="option">
+                    <label for="optSteps">Opt Steps:</label>
+                    <input type="number" id="optSteps" value="20" min="10" max="500">
+                </div>
+                <div class="option">
+                    <span class="status-badge idle" id="statusBadge">Idle</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Phase Banner -->
+        <div class="phase-banner" id="phaseBanner">
+            <div class="phase-title">Pipeline Progress</div>
+            <div class="phase-track" id="phaseTrack">
+                <!-- Planning Phase -->
+                <div class="phase-item pending" data-phase="planning">
+                    <div class="phase-icon">📋</div>
+                    <div class="phase-indicator"></div>
+                    <div class="phase-label">Planning</div>
+                    <div class="phase-time" id="planning-time">--</div>
+                    <div class="phase-connector"></div>
+                </div>
+                
+                <!-- Expert Demo Phase -->
+                <div class="phase-item pending" data-phase="expert_demonstration">
+                    <div class="phase-icon">👨‍🏫</div>
+                    <div class="phase-indicator"></div>
+                    <div class="phase-label">Expert Demo</div>
+                    <div class="phase-time" id="expert-time">--</div>
+                    <div class="phase-connector"></div>
+                </div>
+                
+                <!-- BC Training Phase -->
+                <div class="phase-item pending" data-phase="behavior_cloning">
+                    <div class="phase-icon">🧠</div>
+                    <div class="phase-indicator"></div>
+                    <div class="phase-label">BC Training</div>
+                    <div class="phase-time" id="bc-time">--</div>
+                    <div class="phase-connector"></div>
+                </div>
+                
+                <!-- Optimization Phase -->
+                <div class="phase-item pending" data-phase="optimization">
+                    <div class="phase-icon">⚙️</div>
+                    <div class="phase-indicator"></div>
+                    <div class="phase-label">Optimizing</div>
+                    <div class="phase-time" id="optimization-time">--</div>
+                    <div class="phase-connector"></div>
+                </div>
+                
+                <!-- Vision Phase -->
+                <div class="phase-item pending" data-phase="vision_refinement">
+                    <div class="phase-icon">👁️</div>
+                    <div class="phase-indicator"></div>
+                    <div class="phase-label">Vision</div>
+                    <div class="phase-time" id="vision-time">--</div>
+                    <div class="phase-connector"></div>
+                </div>
+                
+                <!-- Code Generation Phase -->
+                <div class="phase-item pending" data-phase="code_generation">
+                    <div class="phase-icon">💻</div>
+                    <div class="phase-indicator"></div>
+                    <div class="phase-label">Codegen</div>
+                    <div class="phase-time" id="codegen-time">--</div>
+                    <div class="phase-connector"></div>
+                </div>
+                
+                <!-- Execution Phase -->
+                <div class="phase-item pending" data-phase="execution">
+                    <div class="phase-icon">🤖</div>
+                    <div class="phase-indicator"></div>
+                    <div class="phase-label">Execution</div>
+                    <div class="phase-time" id="execution-time">--</div>
+                </div>
+            </div>
+            
+            <!-- Current Phase Display -->
+            <div class="current-phase-display">
+                <div class="current-phase-title" id="currentPhaseTitle">Ready</div>
+                <div class="current-phase-subtitle" id="currentPhaseSubtitle">Waiting for task execution...</div>
+            </div>
+        </div>
+        
+        <!-- Vision Offset Display -->
+        <div class="vision-display" id="visionDisplay">
+            <div class="vision-header">
+                <div class="vision-title">
+                    <span>👁️</span>
+                    <span>Vision Detection Result</span>
+                </div>
+                <div class="vision-status" id="visionStatus">Processing...</div>
+            </div>
+            
+            <div class="vision-content">
+                <!-- Pixel Offsets -->
+                <div class="vision-offset-display">
+                    <div class="offset-label">Pixel Offsets</div>
+                    <div class="offset-values">
+                        <div class="offset-axis">
+                            <div class="offset-axis-label">dx</div>
+                            <div class="offset-value" id="dxPixel">0</div>
+                        </div>
+                        <div class="offset-axis">
+                            <div class="offset-axis-label">dy</div>
+                            <div class="offset-value" id="dyPixel">0</div>
+                        </div>
+                    </div>
+                    <div class="offset-unit">pixels</div>
+                    
+                    <!-- Direction Arrow -->
+                    <div class="vision-arrow">
+                        <canvas id="arrowCanvas" class="arrow-canvas"></canvas>
+                    </div>
+                </div>
+                
+                <!-- World Offsets -->
+                <div class="vision-offset-display">
+                    <div class="offset-label">World Offsets</div>
+                    <div class="offset-values">
+                        <div class="offset-axis">
+                            <div class="offset-axis-label">dx</div>
+                            <div class="offset-value" id="dxWorld">0.0</div>
+                        </div>
+                        <div class="offset-axis">
+                            <div class="offset-axis-label">dy</div>
+                            <div class="offset-value" id="dyWorld">0.0</div>
+                        </div>
+                    </div>
+                    <div class="offset-unit">mm</div>
+                    
+                    <div class="vision-magnitude">
+                        <div class="magnitude-label">Total Offset</div>
+                        <div class="magnitude-value" id="offsetMagnitude">0.0 mm</div>
+                    </div>
+                </div>
+                
+                <!-- Additional Metrics -->
+                <div class="vision-offset-display">
+                    <div class="offset-label">Detection Info</div>
+                    <div class="vision-metrics">
+                        <div class="vision-metric">
+                            <div class="vision-metric-label">Confidence</div>
+                            <div class="vision-metric-value" id="visionConfidence">-</div>
+                        </div>
+                        <div class="vision-metric">
+                            <div class="vision-metric-label">Method</div>
+                            <div class="vision-metric-value" id="visionMethod">-</div>
+                        </div>
+                        <div class="vision-metric">
+                            <div class="vision-metric-label">Depth</div>
+                            <div class="vision-metric-value" id="visionDepth">-</div>
+                        </div>
+                        <div class="vision-metric">
+                            <div class="vision-metric-label">Action</div>
+                            <div class="vision-metric-value" id="visionAction">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-label">Stage Progress</div>
+                <div class="stat-value"><span id="currentStage">-</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Completion</div>
+                <div class="stat-value"><span id="completionRate">0</span><span class="stat-unit">%</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">BC Loss</div>
+                <div class="stat-value"><span id="bcLossValue">-</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Reward</div>
+                <div class="stat-value"><span id="rewardValue">-</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Time Elapsed</div>
+                <div class="stat-value"><span id="timeElapsed">0</span><span class="stat-unit">s</span></div>
+            </div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="progress-text" id="progressText">Ready to execute</div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Console Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">📟 Console Output</span>
+                    <button class="action-btn" onclick="clearConsole()">Clear</button>
+                </div>
+                <div class="panel-content">
+                    <div class="console" id="console"></div>
+                </div>
+            </div>
+            
+            <!-- Metrics Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <span class="panel-title">📊 Metrics</span>
+                </div>
+                <div class="panel-content">
+                    <div class="metrics-grid">
+                        <div class="chart-container">
+                            <canvas id="lossChart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="rewardChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Visualization Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title">🎬 Visualization</span>
+            </div>
+            <div class="panel-content">
+                <div class="viz-grid">
+                    <!-- Simulation Canvas -->
+                    <div>
+                        <h4 style="margin-bottom: 10px; color: var(--text-dim);">Live Simulation</h4>
+                        <canvas id="simCanvas" class="sim-canvas"></canvas>
+                    </div>
+                    
+                    <!-- Video/GIF Panel -->
+                    <div>
+                        <h4 style="margin-bottom: 10px; color: var(--text-dim);">Execution Preview</h4>
+                        <div class="video-container" id="videoContainer">
+                            <div class="video-placeholder">
+                                <p>🎥 Video will appear here</p>
+                                <p style="font-size: 12px; margin-top: 5px;">during execution</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Code Preview Panel -->
+        <div class="panel" id="codePanel" style="display: none;">
+            <div class="panel-header">
+                <span class="panel-title">💻 Generated Code</span>
+                <div>
+                    <button class="action-btn primary" id="rerunScript" title="Execute the generated code end-to-end">
+                        <span>🔄</span> Rerun Final Script
+                    </button>
+                    <button class="action-btn" id="downloadCode">Download</button>
+                    <button class="action-btn" id="viewCode">Full View</button>
+                </div>
+            </div>
+            <div class="panel-content">
+                <div class="code-preview" id="codePreview">
+                    <pre><code id="generatedCode"></code></pre>
+                </div>
+                
+                <!-- Rerun Status Display -->
+                <div id="rerunStatus" style="display: none; margin-top: 15px; padding: 15px; background: var(--bg-darker); border-radius: 8px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span id="rerunStatusIcon">⏳</span>
+                        <span id="rerunStatusText" style="font-weight: 600;">Initializing rerun...</span>
+                    </div>
+                    <div id="rerunOutput" style="font-family: 'Monaco', 'Courier New', monospace; font-size: 12px; max-height: 200px; overflow-y: auto; background: #0d1117; padding: 10px; border-radius: 4px; margin-top: 10px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load the external script file -->
+    <script src="script.js"></script>
+    <script>
+        // API Configuration
+        const API_BASE = 'http://localhost:8000/api';  // Adjust this to match your backend URL
+        
+        // Global state variables
+        let eventSource = null;
+        let currentRequestId = null;
+        let executionStartTime = null;
+        let metricsInterval = null;
+        let simulationAnimationId = null;
+        
+        // Chart instances
+        let lossChart = null;
+        let rewardChart = null;
+        let visionManager = null;
+        
+        // Data storage
+        let lossData = [];
+        let rewardData = [];
+        let generatedCodePath = null;
+        let lastRequestId = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeCharts();
+            initializeSimulation();
+            initializeVisionManager();
+            setupEventListeners();
+            log('System ready', 'success');
+        });
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            document.getElementById('executeBtn').addEventListener('click', executeTask);
+            document.getElementById('promptBox').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') executeTask();
+            });
+        }
+        
+        // Execute task
+        async function executeTask() {
+            const btn = document.getElementById('executeBtn');
+            const prompt = document.getElementById('promptBox').value.trim();
+            
+            if (!prompt) {
+                log('Please enter a task description', 'error');
+                return;
+            }
+            
+            // Disable button and update UI
+            btn.disabled = true;
+            document.getElementById('btnIcon').textContent = '⏸';
+            document.getElementById('btnText').textContent = 'Running...';
+            updateStatus('running');
+            
+            // Clear previous data
+            clearMetrics();
+            clearConsole();
+            lossData = [];
+            rewardData = [];
+            if (visionManager) visionManager.reset();
+            
+            // Start timer
+            executionStartTime = Date.now();
+            startTimer();
+            
+            // Prepare request
+            const request = {
+                task_type: 'pick_and_place',
+                task_description: prompt,
+                use_vision: document.getElementById('useVision').checked,
+                use_gpt_reward: document.getElementById('useGPT').checked,
+                dry_run: document.getElementById('dryRun').checked,
+                num_bc_epochs: parseInt(document.getElementById('bcEpochs').value),
+                num_optimization_steps: parseInt(document.getElementById('optSteps').value),
+                safety_checks: true
+            };
+            
+            log(`Executing task: ${prompt}`, 'info');
+            log(`Configuration: Vision=${request.use_vision}, GPT=${request.use_gpt_reward}, Dry Run=${request.dry_run}`, 'info');
+            
+            try {
+                // Send execution request
+                const response = await axios.post(`${API_BASE}/execute`, request);
+                const result = response.data;
+                currentRequestId = result.request_id;
+                lastRequestId = result.request_id;  // Store for rerun
+                
+                log(`Request ID: ${currentRequestId}`, 'info');
+                
+                // Start SSE connection for real-time updates
+                connectSSE(currentRequestId);
+                
+                // Handle result
+                handleExecutionResult(result);
+                
+            } catch (error) {
+                log(`Execution failed: ${error.message}`, 'error');
+                console.error(error);
+                resetUI();
+            }
+        }
+        
+        // Connect to SSE for real-time updates
+        function connectSSE(requestId) {
+            if (eventSource) {
+                eventSource.close();
+            }
+            
+            eventSource = new EventSource(`${API_BASE}/events/${requestId}`);
+            
+            eventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                handleSSEEvent(data);
+            };
+            
+            eventSource.onerror = (error) => {
+                console.error('SSE error:', error);
+                eventSource.close();
+            };
+        }
+        
+        // Handle SSE events
+        function handleSSEEvent(data) {
+            // Update progress
+            if (data.progress !== undefined && data.progress >= 0) {
+                updateProgress(data.progress * 100, data.message);
+            }
+            
+            // Handle different event types
+            if (data.type === 'heartbeat') {
+                // Log heartbeat messages
+                log(`[${data.phase}] ${data.message}`, 'metric');
+                
+                // Update metrics if available
+                if (data.metrics) {
+                    updateMetricsFromHeartbeat(data.phase, data.metrics);
+                }
+            } else {
+                // Regular event
+                const phaseEmoji = {
+                    'connected': '🔌',
+                    'planning': '📋',
+                    'expert_demonstration': '👨‍🏫',
+                    'behavior_cloning': '🧠',
+                    'optimization': '⚙️',
+                    'vision_refinement': '👁️',
+                    'code_generation': '💻',
+                    'execution': '🤖',
+                    'completed': '✅',
+                    'failed': '❌'
+                };
+                
+                const emoji = phaseEmoji[data.phase] || '●';
+                log(`${emoji} [${data.phase}] ${data.message}`, 'phase');
+                
+                // Update current stage
+                document.getElementById('currentStage').textContent = 
+                    data.phase.replace(/_/g, ' ').toUpperCase();
+                
+                // Log metrics
+                if (data.metrics) {
+                    for (const [key, value] of Object.entries(data.metrics)) {
+                        if (typeof value === 'number') {
+                            log(`  ${key}: ${value.toFixed(4)}`, 'metric');
+                        } else {
+                            log(`  ${key}: ${value}`, 'metric');
+                        }
+                    }
+                    
+                    // Update specific metrics
+                    if (data.metrics.bc_loss !== undefined) {
+                        updateBCLoss(data.metrics.bc_loss);
+                    }
+                    if (data.metrics.final_reward !== undefined) {
+                        updateReward(data.metrics.final_reward);
+                    }
+                    
+                    // Check for vision data in regular events
+                    if (data.metrics.vision_offset || data.metrics.vision || 
+                        data.metrics.dx !== undefined || data.metrics.dy !== undefined) {
+                        const visionData = data.metrics.vision_offset || data.metrics.vision || data.metrics;
+                        if (visionManager && (visionData.dx !== undefined || visionData.dy !== undefined)) {
+                            visionManager.updateVisionOffsets(visionData);
+                        }
+                    }
+                }
+                
+                // Handle completion
+                if (data.phase === 'completed') {
+                    handleCompletion(true);
+                } else if (data.phase === 'failed') {
+                    handleCompletion(false);
+                }
+            }
+        }
+        
+        // Update metrics from heartbeat
+        function updateMetricsFromHeartbeat(phase, metrics) {
+            if (phase === 'behavior_cloning' && metrics.epoch_loss !== undefined) {
+                lossData.push(metrics.epoch_loss);
+                updateLossChart();
+                document.getElementById('bcLossValue').textContent = metrics.epoch_loss.toFixed(4);
+            }
+            
+            if (phase === 'optimization' && metrics.avg_reward !== undefined) {
+                rewardData.push(metrics.avg_reward);
+                updateRewardChart();
+                document.getElementById('rewardValue').textContent = metrics.avg_reward.toFixed(3);
+            }
+            
+            // Check for vision offset data
+            if (metrics.vision_offset || metrics.vision || metrics.dx !== undefined || metrics.dy !== undefined) {
+                const visionData = metrics.vision_offset || metrics.vision || metrics;
+                if (visionManager && (visionData.dx !== undefined || visionData.dy !== undefined)) {
+                    visionManager.updateVisionOffsets(visionData);
+                }
+            }
+        }
+        
+        // Handle execution result
+        async function handleExecutionResult(result) {
+            // Update stats
+            if (result.summary) {
+                const summary = result.summary;
+                document.getElementById('completionRate').textContent = 
+                    Math.round(summary.success_rate * 100);
+                
+                if (summary.final_bc_loss !== null) {
+                    document.getElementById('bcLossValue').textContent = 
+                        summary.final_bc_loss.toFixed(4);
+                }
+                
+                if (summary.final_optimization_reward !== null) {
+                    document.getElementById('rewardValue').textContent = 
+                        summary.final_optimization_reward.toFixed(3);
+                }
+            }
+            
+            // Show generated code if available
+            if (result.generated_code) {
+                // Store code path if provided
+                if (result.code_path) {
+                    generatedCodePath = result.code_path;
+                }
+                showGeneratedCode(result.generated_code, result.code_links);
+            }
+            
+            // Log summary
+            if (result.summary) {
+                log('=== Execution Summary ===', 'success');
+                log(`Total time: ${result.summary.total_duration_seconds.toFixed(2)}s`, 'success');
+                log(`Stages completed: ${result.summary.stages_completed_count}/${result.summary.stages_total_count}`, 'success');
+            }
+        }
+        
+        // Show generated code
+        function showGeneratedCode(code, codeLinks) {
+            const codePanel = document.getElementById('codePanel');
+            const codeElement = document.getElementById('generatedCode');
+            
+            // Show first 50 lines
+            const lines = code.split('\n').slice(0, 50);
+            codeElement.textContent = lines.join('\n') + '\n\n# ... (truncated)';
+            
+            codePanel.style.display = 'block';
+            
+            // Store the code path if provided
+            if (codeLinks && codeLinks.code_path) {
+                generatedCodePath = codeLinks.code_path;
+            }
+            
+            // Setup download button
+            if (codeLinks) {
+                document.getElementById('downloadCode').onclick = () => {
+                    window.open(codeLinks.code_download_url, '_blank');
+                };
+                
+                document.getElementById('viewCode').onclick = () => {
+                    window.open(codeLinks.code_preview_url, '_blank');
+                };
+            }
+            
+            // Setup rerun button
+            setupRerunButton();
+        }
+        
+        // Handle completion
+        function handleCompletion(success) {
+            if (eventSource) {
+                eventSource.close();
+            }
+            
+            stopTimer();
+            
+            if (success) {
+                updateStatus('success');
+                log('Task completed successfully! ✅', 'success');
+                updateProgress(100, 'Execution complete');
+                
+                // Show success animation on canvas
+                showSuccessAnimation();
+            } else {
+                updateStatus('error');
+                log('Task failed ❌', 'error');
+            }
+            
+            resetUI();
+        }
+        
+        // Initialize charts
+        function initializeCharts() {
+            // BC Loss Chart
+            const lossCtx = document.getElementById('lossChart').getContext('2d');
+            lossChart = new Chart(lossCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'BC Loss',
+                        data: [],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#9ca3af' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(55, 65, 81, 0.3)' }
+                        },
+                        x: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(55, 65, 81, 0.3)' }
+                        }
+                    }
+                }
+            });
+            
+            // Reward Chart
+            const rewardCtx = document.getElementById('rewardChart').getContext('2d');
+            rewardChart = new Chart(rewardCtx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Optimization Reward',
+                        data: [],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: '#9ca3af' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(55, 65, 81, 0.3)' }
+                        },
+                        x: {
+                            ticks: { color: '#9ca3af' },
+                            grid: { color: 'rgba(55, 65, 81, 0.3)' }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Update loss chart
+        function updateLossChart() {
+            lossChart.data.labels = lossData.map((_, i) => `Epoch ${i + 1}`);
+            lossChart.data.datasets[0].data = lossData;
+            lossChart.update();
+        }
+        
+        // Update reward chart  
+        function updateRewardChart() {
+            rewardChart.data.labels = rewardData.map((_, i) => `Step ${(i + 1) * 3}`);
+            rewardChart.data.datasets[0].data = rewardData;
+            rewardChart.update();
+        }
+        
+        // Update BC loss
+        function updateBCLoss(loss) {
+            document.getElementById('bcLossValue').textContent = loss.toFixed(4);
+        }
+        
+        // Update reward
+        function updateReward(reward) {
+            document.getElementById('rewardValue').textContent = reward.toFixed(3);
+        }
+        
+        // Initialize simulation canvas
+        function initializeSimulation() {
+            const canvas = document.getElementById('simCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            // Draw initial scene
+            drawSimulationFrame(ctx, 0);
+            
+            // Start animation loop
+            let frame = 0;
+            function animate() {
+                drawSimulationFrame(ctx, frame);
+                frame = (frame + 1) % 360;
+                simulationAnimationId = requestAnimationFrame(animate);
+            }
+            animate();
+        }
+        
+        // Draw simulation frame
+        function drawSimulationFrame(ctx, frame) {
+            const width = ctx.canvas.width;
+            const height = ctx.canvas.height;
+            
+            // Clear canvas
+            ctx.fillStyle = '#0d1117';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw grid
+            ctx.strokeStyle = 'rgba(55, 65, 81, 0.3)';
+            ctx.lineWidth = 1;
+            
+            const gridSize = 20;
+            for (let x = 0; x <= width; x += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, height);
+                ctx.stroke();
+            }
+            for (let y = 0; y <= height; y += gridSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            // Draw robot arm (simplified)
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const armLength = 60;
+            
+            // Base
+            ctx.fillStyle = '#4b5563';
+            ctx.fillRect(centerX - 20, centerY + 40, 40, 20);
+            
+            // Arm segments
+            const angle1 = Math.sin(frame * 0.01) * 0.3;
+            const angle2 = Math.cos(frame * 0.015) * 0.2;
+            
+            ctx.strokeStyle = '#60a5fa';
+            ctx.lineWidth = 6;
+            ctx.lineCap = 'round';
+            
+            // First segment
+            const x1 = centerX + Math.cos(angle1 - Math.PI/2) * armLength;
+            const y1 = centerY + Math.sin(angle1 - Math.PI/2) * armLength;
+            
+            ctx.beginPath();
+            ctx.moveTo(centerX, centerY);
+            ctx.lineTo(x1, y1);
+            ctx.stroke();
+            
+            // Second segment
+            const x2 = x1 + Math.cos(angle1 + angle2 - Math.PI/2) * armLength * 0.8;
+            const y2 = y1 + Math.sin(angle1 + angle2 - Math.PI/2) * armLength * 0.8;
+            
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            
+            // Gripper
+            ctx.strokeStyle = '#10b981';
+            ctx.lineWidth = 4;
+            
+            const gripperSize = 15;
+            const gripperAngle = angle1 + angle2 - Math.PI/2;
+            
+            // Gripper fingers
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 + Math.cos(gripperAngle - 0.3) * gripperSize, 
+                      y2 + Math.sin(gripperAngle - 0.3) * gripperSize);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(x2 + Math.cos(gripperAngle + 0.3) * gripperSize,
+                      y2 + Math.sin(gripperAngle + 0.3) * gripperSize);
+            ctx.stroke();
+            
+            // Draw object (cube)
+            const cubeX = centerX + 80;
+            const cubeY = centerY + 20;
+            const cubeSize = 25;
+            
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillRect(cubeX - cubeSize/2, cubeY - cubeSize/2, cubeSize, cubeSize);
+            
+            ctx.strokeStyle = '#60a5fa';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(cubeX - cubeSize/2, cubeY - cubeSize/2, cubeSize, cubeSize);
+            
+            // Draw target platform
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(centerX - 100, centerY + 50, 60, 10);
+            
+            // Status text
+            ctx.fillStyle = '#9ca3af';
+            ctx.font = '12px Monaco';
+            ctx.fillText('Simulation Active', 10, 20);
+            
+            // Frame counter
+            ctx.fillText(`Frame: ${frame}`, 10, height - 10);
+        }
+        
+        // Show success animation
+        function showSuccessAnimation() {
+            const canvas = document.getElementById('simCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            let opacity = 0;
+            let scale = 0.5;
+            
+            function drawSuccess() {
+                drawSimulationFrame(ctx, 0);
+                
+                // Draw success overlay
+                ctx.save();
+                ctx.globalAlpha = opacity;
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.scale(scale, scale);
+                
+                // Success circle
+                ctx.strokeStyle = '#10b981';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(0, 0, 40, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Checkmark
+                ctx.beginPath();
+                ctx.moveTo(-15, 0);
+                ctx.lineTo(-5, 10);
+                ctx.lineTo(15, -10);
+                ctx.stroke();
+                
+                ctx.restore();
+                
+                opacity = Math.min(opacity + 0.05, 1);
+                scale = Math.min(scale + 0.05, 1);
+                
+                if (opacity < 1 || scale < 1) {
+                    requestAnimationFrame(drawSuccess);
+                }
+            }
+            
+            drawSuccess();
+        }
+        
+        // Console logging
+        function log(message, type = 'info') {
+            const console = document.getElementById('console');
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            line.textContent = `[${timestamp}] ${message}`;
+            
+            console.appendChild(line);
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        // Clear console
+        function clearConsole() {
+            document.getElementById('console').innerHTML = '';
+        }
+        
+        // Clear metrics
+        function clearMetrics() {
+            document.getElementById('bcLossValue').textContent = '-';
+            document.getElementById('rewardValue').textContent = '-';
+            document.getElementById('currentStage').textContent = '-';
+            document.getElementById('completionRate').textContent = '0';
+            
+            // Clear charts
+            if (lossChart) {
+                lossChart.data.labels = [];
+                lossChart.data.datasets[0].data = [];
+                lossChart.update();
+            }
+            
+            if (rewardChart) {
+                rewardChart.data.labels = [];
+                rewardChart.data.datasets[0].data = [];
+                rewardChart.update();
+            }
+        }
+        
+        // Update progress
+        function updateProgress(percent, text) {
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('progressText').textContent = text || `${Math.round(percent)}% complete`;
+            document.getElementById('completionRate').textContent = Math.round(percent);
+        }
+        
+        // Update status badge
+        function updateStatus(status) {
+            const badge = document.getElementById('statusBadge');
+            badge.className = `status-badge ${status}`;
+            
+            const statusText = {
+                'idle': 'Idle',
+                'running': 'Running',
+                'success': 'Success',
+                'error': 'Error'
+            };
+            
+            badge.textContent = statusText[status] || status;
+        }
+        
+        // Timer functions
+        function startTimer() {
+            if (metricsInterval) clearInterval(metricsInterval);
+            
+            metricsInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - executionStartTime) / 1000);
+                document.getElementById('timeElapsed').textContent = elapsed;
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            if (metricsInterval) {
+                clearInterval(metricsInterval);
+                metricsInterval = null;
+            }
+        }
+        
+        // Reset UI
+        function resetUI() {
+            const btn = document.getElementById('executeBtn');
+            btn.disabled = false;
+            document.getElementById('btnIcon').textContent = '▶';
+            document.getElementById('btnText').textContent = 'Execute';
+            updateStatus('idle');
+        }
+        
+        // Load demo video
+        function loadDemoVideo() {
+            const container = document.getElementById('videoContainer');
+            container.innerHTML = `
+                <img src="https://media.giphy.com/media/3o7TKSjRrfIPjeiVyM/giphy.gif" 
+                     alt="Robot execution demo"
+                     style="width: 100%; height: 100%; object-fit: contain;">
+            `;
+        }
+        
+        // Initialize Vision Manager
+        function initializeVisionManager() {
+            visionManager = {
+                display: document.getElementById('visionDisplay'),
+                canvas: document.getElementById('arrowCanvas'),
+                ctx: null,
+                lastUpdate: Date.now(),
+                
+                init: function() {
+                    this.ctx = this.canvas.getContext('2d');
+                    this.setupCanvas();
+                },
+                
+                setupCanvas: function() {
+                    this.canvas.width = 100;
+                    this.canvas.height = 100;
+                },
+                
+                updateVisionOffsets: function(data) {
+                    // Show the vision display panel
+                    this.display.classList.add('active');
+                    
+                    // Extract pixel offsets
+                    const dxPixel = data.dx_pixel || data.dx || 0;
+                    const dyPixel = data.dy_pixel || data.dy || 0;
+                    
+                    // Extract or calculate world offsets (assuming conversion if not provided)
+                    const dxWorld = data.dx_world || (dxPixel * 0.5); // Example conversion
+                    const dyWorld = data.dy_world || (dyPixel * 0.5);
+                    
+                    // Update pixel offset display
+                    this.updateOffsetValue('dxPixel', dxPixel);
+                    this.updateOffsetValue('dyPixel', dyPixel);
+                    
+                    // Update world offset display
+                    this.updateOffsetValue('dxWorld', dxWorld.toFixed(1));
+                    this.updateOffsetValue('dyWorld', dyWorld.toFixed(1));
+                    
+                    // Calculate magnitude
+                    const magnitude = Math.sqrt(dxWorld * dxWorld + dyWorld * dyWorld);
+                    document.getElementById('offsetMagnitude').textContent = `${magnitude.toFixed(1)} mm`;
+                    
+                    // Update status
+                    const statusEl = document.getElementById('visionStatus');
+                    const tolerance = 5; // mm tolerance for alignment
+                    if (magnitude < tolerance) {
+                        statusEl.textContent = 'Aligned';
+                        statusEl.className = 'vision-status aligned';
+                    } else {
+                        statusEl.textContent = 'Offset Detected';
+                        statusEl.className = 'vision-status misaligned';
+                    }
+                    
+                    // Draw direction arrow
+                    this.drawDirectionArrow(dxPixel, dyPixel);
+                    
+                    // Update additional metrics if provided
+                    if (data.confidence !== undefined) {
+                        document.getElementById('visionConfidence').textContent = `${(data.confidence * 100).toFixed(0)}%`;
+                    }
+                    if (data.method) {
+                        document.getElementById('visionMethod').textContent = data.method;
+                    }
+                    if (data.depth !== undefined) {
+                        document.getElementById('visionDepth').textContent = `${data.depth.toFixed(1)}mm`;
+                    }
+                    if (data.action) {
+                        document.getElementById('visionAction').textContent = data.action;
+                    }
+                    
+                    // Animation effect
+                    this.display.style.animation = 'none';
+                    setTimeout(() => {
+                        this.display.style.animation = 'visionPulse 0.5s ease-out';
+                    }, 10);
+                    
+                    this.lastUpdate = Date.now();
+                },
+                
+                updateOffsetValue: function(elementId, value) {
+                    const element = document.getElementById(elementId);
+                    const numValue = parseFloat(value);
+                    
+                    // Update text
+                    element.textContent = value;
+                    
+                    // Update color based on value
+                    if (Math.abs(numValue) < 0.01) {
+                        element.className = 'offset-value zero';
+                    } else if (numValue > 0) {
+                        element.className = 'offset-value positive';
+                    } else {
+                        element.className = 'offset-value negative';
+                    }
+                },
+                
+                drawDirectionArrow: function(dx, dy) {
+                    const ctx = this.ctx;
+                    const centerX = 50;
+                    const centerY = 50;
+                    const maxLength = 35;
+                    
+                    // Clear canvas
+                    ctx.clearRect(0, 0, 100, 100);
+                    
+                    // Calculate arrow properties
+                    const magnitude = Math.sqrt(dx * dx + dy * dy);
+                    if (magnitude < 0.01) {
+                        // Draw centered dot for zero offset
+                        ctx.beginPath();
+                        ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
+                        ctx.fillStyle = '#34d399';
+                        ctx.fill();
+                        return;
+                    }
+                    
+                    // Normalize and scale
+                    const scale = Math.min(maxLength / magnitude, maxLength / 100);
+                    const endX = centerX + dx * scale;
+                    const endY = centerY - dy * scale; // Invert Y for display
+                    
+                    // Draw arrow shaft
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(endX, endY);
+                    ctx.strokeStyle = '#2563eb';
+                    ctx.lineWidth = 3;
+                    ctx.stroke();
+                    
+                    // Draw arrowhead
+                    const angle = Math.atan2(-dy, dx);
+                    const headLength = 10;
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(
+                        endX - headLength * Math.cos(angle - Math.PI / 6),
+                        endY + headLength * Math.sin(angle - Math.PI / 6)
+                    );
+                    ctx.moveTo(endX, endY);
+                    ctx.lineTo(
+                        endX - headLength * Math.cos(angle + Math.PI / 6),
+                        endY + headLength * Math.sin(angle + Math.PI / 6)
+                    );
+                    ctx.stroke();
+                    
+                    // Draw center point
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fb923c';
+                    ctx.fill();
+                },
+                
+                hide: function() {
+                    this.display.classList.remove('active');
+                },
+                
+                reset: function() {
+                    this.hide();
+                    document.getElementById('dxPixel').textContent = '0';
+                    document.getElementById('dyPixel').textContent = '0';
+                    document.getElementById('dxWorld').textContent = '0.0';
+                    document.getElementById('dyWorld').textContent = '0.0';
+                    document.getElementById('offsetMagnitude').textContent = '0.0 mm';
+                    document.getElementById('visionConfidence').textContent = '-';
+                    document.getElementById('visionMethod').textContent = '-';
+                    document.getElementById('visionDepth').textContent = '-';
+                    document.getElementById('visionAction').textContent = '-';
+                    document.getElementById('visionStatus').textContent = 'Processing...';
+                    document.getElementById('visionStatus').className = 'vision-status';
+                    if (this.ctx) {
+                        this.ctx.clearRect(0, 0, 100, 100);
+                    }
+                }
+            };
+            
+            visionManager.init();
+        }
+        
+        // Setup rerun button functionality
+        function setupRerunButton() {
+            const rerunBtn = document.getElementById('rerunScript');
+            
+            rerunBtn.onclick = async () => {
+                await rerunGeneratedScript();
+            };
+            
+            // Enable the button
+            rerunBtn.disabled = false;
+        }
+        
+        // Rerun the generated script
+        async function rerunGeneratedScript() {
+            const rerunBtn = document.getElementById('rerunScript');
+            const statusDiv = document.getElementById('rerunStatus');
+            const statusIcon = document.getElementById('rerunStatusIcon');
+            const statusText = document.getElementById('rerunStatusText');
+            const outputDiv = document.getElementById('rerunOutput');
+            
+            // Check if we have a request ID or code path
+            if (!lastRequestId && !generatedCodePath) {
+                logRerun('No generated code available to rerun', 'error');
+                return;
+            }
+            
+            // Update UI
+            rerunBtn.disabled = true;
+            rerunBtn.classList.add('running');
+            statusDiv.style.display = 'block';
+            outputDiv.innerHTML = '';
+            statusIcon.textContent = '⏳';
+            statusText.textContent = 'Initializing script rerun...';
+            
+            logRerun('Starting end-to-end execution of generated code...', 'info');
+            
+            try {
+                // Prepare the rerun request
+                const rerunRequest = {
+                    request_id: lastRequestId || currentRequestId,
+                    code_path: generatedCodePath,
+                    mode: 'full_execution',
+                    clean_run: true,
+                    capture_output: true
+                };
+                
+                logRerun(`Request ID: ${rerunRequest.request_id}`, 'info');
+                if (generatedCodePath) {
+                    logRerun(`Code path: ${generatedCodePath}`, 'info');
+                }
+                
+                // Make API call to rerun the script
+                statusText.textContent = 'Executing script...';
+                const response = await axios.post(`${API_BASE}/rerun`, rerunRequest);
+                
+                if (response.data.rerun_id) {
+                    // Connect to SSE for real-time updates
+                    connectRerunSSE(response.data.rerun_id);
+                } else {
+                    // Handle immediate response
+                    handleRerunResult(response.data);
+                }
+                
+            } catch (error) {
+                console.error('Rerun error:', error);
+                statusIcon.textContent = '❌';
+                statusText.textContent = 'Rerun failed';
+                logRerun(`Error: ${error.message}`, 'error');
+                
+                if (error.response && error.response.data) {
+                    logRerun(`Details: ${JSON.stringify(error.response.data)}`, 'error');
+                }
+                
+                // Re-enable button
+                rerunBtn.disabled = false;
+                rerunBtn.classList.remove('running');
+            }
+        }
+        
+        // Connect to SSE for rerun updates
+        function connectRerunSSE(rerunId) {
+            const statusIcon = document.getElementById('rerunStatusIcon');
+            const statusText = document.getElementById('rerunStatusText');
+            const rerunBtn = document.getElementById('rerunScript');
+            
+            const rerunEventSource = new EventSource(`${API_BASE}/rerun/events/${rerunId}`);
+            
+            rerunEventSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                // Update status based on event type
+                if (data.type === 'output') {
+                    logRerun(data.message, 'output');
+                } else if (data.type === 'error') {
+                    logRerun(data.message, 'error');
+                } else if (data.type === 'status') {
+                    statusText.textContent = data.message;
+                    if (data.message.includes('Running')) {
+                        statusIcon.textContent = '🏃';
+                    }
+                } else if (data.type === 'complete') {
+                    statusIcon.textContent = '✅';
+                    statusText.textContent = 'Script execution completed successfully';
+                    logRerun('\n=== Execution completed successfully ===', 'success');
+                    rerunEventSource.close();
+                    
+                    // Re-enable button
+                    rerunBtn.disabled = false;
+                    rerunBtn.classList.remove('running');
+                } else if (data.type === 'failed') {
+                    statusIcon.textContent = '❌';
+                    statusText.textContent = 'Script execution failed';
+                    logRerun('\n=== Execution failed ===', 'error');
+                    rerunEventSource.close();
+                    
+                    // Re-enable button
+                    rerunBtn.disabled = false;
+                    rerunBtn.classList.remove('running');
+                } else {
+                    // Generic message
+                    logRerun(data.message || JSON.stringify(data), 'info');
+                }
+            };
+            
+            rerunEventSource.onerror = (error) => {
+                console.error('Rerun SSE error:', error);
+                rerunEventSource.close();
+                statusIcon.textContent = '⚠️';
+                statusText.textContent = 'Connection lost';
+                
+                // Re-enable button
+                rerunBtn.disabled = false;
+                rerunBtn.classList.remove('running');
+            };
+        }
+        
+        // Handle immediate rerun result (non-SSE)
+        function handleRerunResult(result) {
+            const statusIcon = document.getElementById('rerunStatusIcon');
+            const statusText = document.getElementById('rerunStatusText');
+            const rerunBtn = document.getElementById('rerunScript');
+            
+            if (result.success) {
+                statusIcon.textContent = '✅';
+                statusText.textContent = 'Script executed successfully';
+                logRerun('=== Execution completed successfully ===', 'success');
+                
+                if (result.output) {
+                    logRerun('\nOutput:', 'info');
+                    result.output.split('\n').forEach(line => {
+                        if (line.trim()) logRerun(line, 'output');
+                    });
+                }
+                
+                if (result.metrics) {
+                    logRerun('\nMetrics:', 'info');
+                    Object.entries(result.metrics).forEach(([key, value]) => {
+                        logRerun(`  ${key}: ${value}`, 'info');
+                    });
+                }
+            } else {
+                statusIcon.textContent = '❌';
+                statusText.textContent = 'Script execution failed';
+                logRerun('=== Execution failed ===', 'error');
+                
+                if (result.error) {
+                    logRerun(`Error: ${result.error}`, 'error');
+                }
+            }
+            
+            // Re-enable button
+            rerunBtn.disabled = false;
+            rerunBtn.classList.remove('running');
+        }
+        
+        // Log to rerun output
+        function logRerun(message, type = 'info') {
+            const outputDiv = document.getElementById('rerunOutput');
+            const line = document.createElement('div');
+            line.className = `rerun-log-line ${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            if (type !== 'output') {
+                line.textContent = `[${timestamp}] ${message}`;
+            } else {
+                line.textContent = message;
+            }
+            
+            outputDiv.appendChild(line);
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+# Git files
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv
+venv
+ENV
+env
+
+# Poetry
+poetry.lock.* 
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+.tox
+.hypothesis
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+
+# Documentation
+docs
+*.md
+!README.md
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Development files
+.env
+.env.local
+.env.*.local
+*.log
+logs/*
+!logs/.gitkeep
+
+# Build artifacts
+build
+dist
+*.egg-info
+
+# Docker files (we don't want to copy these into the image)
+docker/
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Temporary files
+tmp
+temp
+*.tmp
+*.bak
+*.swp
+*~
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Pre-commit
+.pre-commit-config.yaml
+
+# Development tools config
+.flake8
+.editorconfig
+setup.cfg
+Makefile
+
+# Models and data (these should be mounted as volumes)
+models/*
+!models/.gitkeep
+data/*
+!data/.gitkeep

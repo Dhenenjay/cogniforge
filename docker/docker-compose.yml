@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  cogniforge:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: cogniforge:latest
+    container_name: cogniforge-app
+    
+    # Port mapping
+    ports:
+      - "8000:8000"
+    
+    # Environment variables
+    environment:
+      # Display settings for headless rendering
+      - DISPLAY=:99
+      - PYBULLET_EGL=1
+      - MESA_GL_VERSION_OVERRIDE=3.3
+      - MESA_GLSL_VERSION_OVERRIDE=330
+      - LIBGL_ALWAYS_SOFTWARE=1
+      
+      # Application settings
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - API_RELOAD=false
+      - APP_NAME=CogniForge
+      - APP_VERSION=0.1.0
+      - DEBUG=false
+      
+      # PyBullet settings
+      - PYBULLET_GUI=false
+      
+      # ML/AI settings
+      - TORCH_DEVICE=cpu
+      - MODEL_PATH=/app/models
+      - DATA_PATH=/app/data
+      
+      # Logging
+      - LOG_LEVEL=INFO
+      - LOG_FILE=/app/logs/cogniforge.log
+      
+      # OpenAI (set via .env file or environment)
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+    
+    # Mount volumes for persistent data
+    volumes:
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./logs:/app/logs
+      # Mount .env file if it exists
+      - ../.env:/app/.env:ro
+    
+    # Resource limits (adjust as needed)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 4G
+        reservations:
+          cpus: '1.0'
+          memory: 2G
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Network configuration
+    networks:
+      - cogniforge-network
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    
+    # Read-only root filesystem with specific writable directories
+    read_only: false  # Set to true for production with proper volume mounts
+    
+    # Logging configuration
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Optional: Nginx reverse proxy
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: cogniforge-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - cogniforge
+  #   networks:
+  #     - cogniforge-network
+  #   restart: unless-stopped
+
+networks:
+  cogniforge-network:
+    driver: bridge
+    name: cogniforge-net
+
+# Named volumes (optional, for production use)
+volumes:
+  models:
+    driver: local
+  data:
+    driver: local
+  logs:
+    driver: local

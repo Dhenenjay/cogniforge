@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-09-27T14:06:23.079412",
+  "system": {
+    "cpu_cores": 24,
+    "ram_gb": 15.726432800292969,
+    "pytorch_device": "cpu"
+  },
+  "timings": {
+    "ppo_minimal_500": 0.9318857192993164,
+    "ppo_standard_1000": 1.5784971714019775,
+    "ppo_estimated_5000": 7.892485857009888,
+    "cma_20_iterations": 3.0
+  },
+  "recommendation": "FLEXIBLE"
+}
