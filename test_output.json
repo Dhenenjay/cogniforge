@@ -1,8 +1,0 @@
-{"timestamp": "2025-09-27T16:16:15.907631", "request_id": "test-request-001", "phase": "planning", "message": "Starting task planning", "level": "info", "elapsed_time": 0.0, "metrics": {}}
-{"timestamp": "2025-09-27T16:16:15.913951", "request_id": "test-request-001", "phase": "planning", "message": "Task analyzed", "level": "info", "elapsed_time": 0.01, "metrics": {"complexity": 0.7, "steps": 8}}
-{"timestamp": "2025-09-27T16:16:15.915042", "request_id": "test-request-001", "phase": "behavior_cloning", "message": "Epoch 1", "level": "metric", "elapsed_time": 0.01, "metrics": {"epoch": 1, "loss": 0.234}}
-{"timestamp": "2025-09-27T16:16:15.916561", "request_id": "test-request-001", "phase": "behavior_cloning", "message": "Epoch 2", "level": "metric", "elapsed_time": 0.01, "metrics": {"epoch": 2, "loss": 0.156}}
-{"timestamp": "2025-09-27T16:16:15.916561", "request_id": "test-request-001", "phase": "vision_refinement", "message": "Low confidence", "level": "warning", "elapsed_time": 0.01, "metrics": {"confidence": 0.3}}
-{"timestamp": "2025-09-27T16:16:15.917565", "request_id": "test-request-001", "phase": "execution", "message": "Motion failed", "level": "error", "elapsed_time": 0.01, "metrics": {"waypoint": 3, "error": "Collision"}}
-{"timestamp": "2025-09-27T16:16:15.918566", "request_id": "test-request-001", "phase": "completed", "message": "Pipeline complete", "level": "success", "elapsed_time": 0.01, "metrics": {"duration": 12.5, "success_rate": 0.95}}
-{"timestamp": "2025-09-27T16:16:15.920053", "request_id": "test-request-001", "phase": "vision_refinement", "message": "Vision offset detected", "level": "metric", "elapsed_time": 0.01, "metrics": {"dx": 5, "dy": -3, "confidence": 0.92, "method": "template_matching"}}
