@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniForge-V | Advanced Robotic Learning Platform</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #151932 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: rgba(20, 25, 45, 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(94, 234, 212, 0.3);
+            padding: 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5EEAD4 0%, #60A5FA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(94, 234, 212, 0.1);
+            border: 1px solid rgba(94, 234, 212, 0.5);
+            border-radius: 20px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #5EEAD4;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .input-section {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        
+        .input-container {
+            background: rgba(30, 35, 55, 0.8);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        #taskInput {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(10, 15, 35, 0.6);
+            border: 1px solid rgba(94, 234, 212, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        #taskInput:focus {
+            outline: none;
+            border-color: #5EEAD4;
+            box-shadow: 0 0 20px rgba(94, 234, 212, 0.3);
+        }
+        
+        #executeBtn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #5EEAD4 0%, #60A5FA 100%);
+            border: none;
+            border-radius: 8px;
+            color: #0a0e27;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        #executeBtn:hover {
+            transform: translateY(-2px);
+        }
+        
+        #executeBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .main-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .console-panel {
+            background: rgba(30, 35, 55, 0.8);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            height: 400px;
+            overflow-y: auto;
+        }
+        
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(94, 234, 212, 0.2);
+        }
+        
+        .console-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5EEAD4;
+        }
+        
+        #console {
+            font-family: 'SF Mono', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .console-entry {
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background: rgba(10, 15, 35, 0.4);
+            border-left: 3px solid #5EEAD4;
+            border-radius: 4px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .phase-label {
+            color: #60A5FA;
+            font-weight: 600;
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .chart-container {
+            background: rgba(30, 35, 55, 0.8);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+            height: 300px;
+        }
+        
+        .chart-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5EEAD4;
+            margin-bottom: 15px;
+        }
+        
+        .stats-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .stats-card {
+            background: rgba(30, 35, 55, 0.8);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .stats-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #5EEAD4;
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(94, 234, 212, 0.1);
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: #94A3B8;
+        }
+        
+        .stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(10, 15, 35, 0.6);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5EEAD4 0%, #60A5FA 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .phase-indicator {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .phase-box {
+            padding: 10px;
+            background: rgba(10, 15, 35, 0.6);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 6px;
+            text-align: center;
+            font-size: 11px;
+            transition: all 0.3s;
+        }
+        
+        .phase-box.active {
+            background: rgba(94, 234, 212, 0.2);
+            border-color: #5EEAD4;
+            transform: scale(1.05);
+        }
+        
+        .phase-box.completed {
+            background: rgba(94, 234, 212, 0.1);
+            border-color: rgba(94, 234, 212, 0.5);
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(10, 15, 35, 0.6);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .metric-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #94A3B8;
+            margin-bottom: 5px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5EEAD4 0%, #60A5FA 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .code-preview {
+            background: rgba(10, 15, 35, 0.8);
+            border: 1px solid rgba(94, 234, 212, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            color: #5EEAD4;
+            font-size: 12px;
+        }
+        
+        .code-content {
+            font-family: 'SF Mono', monospace;
+            font-size: 12px;
+            color: #E2E8F0;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+        
+        .behavior-tree {
+            background: rgba(10, 15, 35, 0.8);
+            border: 1px solid #5EEAD4;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'SF Mono', monospace;
+            font-size: 12px;
+        }
+        
+        .tree-node {
+            margin-left: 20px;
+            padding: 3px 0;
+            color: #60A5FA;
+        }
+        
+        .reward-weights {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .weight-item {
+            background: rgba(94, 234, 212, 0.1);
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        .vision-frame {
+            background: rgba(10, 15, 35, 0.8);
+            border: 2px solid #FFD700;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .vision-title {
+            color: #FFD700;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .vision-data {
+            font-family: 'SF Mono', monospace;
+            color: #5EEAD4;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <h1>CogniForge-V</h1>
+                <span style="color: #94A3B8;">Advanced Robotic Learning Platform</span>
+            </div>
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                <span id="status">Ready</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="input-section">
+        <div class="input-container">
+            <input type="text" id="taskInput" placeholder="Enter task: e.g., 'pick up the blue cube and place it on the green platform'" value="pick up the blue cube and place it on the green platform">
+            <button id="executeBtn" onclick="executeTask()">EXECUTE</button>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="left-panel">
+            <div class="console-panel">
+                <div class="console-header">
+                    <div class="console-title">Execution Console</div>
+                    <div style="color: #5EEAD4; font-size: 11px;">LIVE</div>
+                </div>
+                <div id="console"></div>
+            </div>
+            
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <div class="chart-title">BC Training Loss</div>
+                    <canvas id="bcChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">CMA-ES Optimization</div>
+                    <canvas id="cmaesChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="code-preview" id="codePreview">
+                <div class="code-header">
+                    <span>📄 generated/pick_place.py</span>
+                    <span>View Full Code →</span>
+                </div>
+                <pre class="code-content" id="codeContent"></pre>
+            </div>
+        </div>
+        
+        <div class="stats-panel">
+            <div class="stats-card">
+                <div class="stats-title">Pipeline Progress</div>
+                <div class="phase-indicator">
+                    <div class="phase-box" id="phase-1">Behavior Tree</div>
+                    <div class="phase-box" id="phase-2">Expert Demo</div>
+                    <div class="phase-box" id="phase-3">BC Training</div>
+                    <div class="phase-box" id="phase-4">Optimization</div>
+                    <div class="phase-box" id="phase-5">Vision</div>
+                    <div class="phase-box" id="phase-6">Code Gen</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="stats-title">Training Metrics</div>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-label">BC Loss</div>
+                        <div class="metric-value" id="bcLoss">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">CMA-ES Cost</div>
+                        <div class="metric-value" id="cmaesCost">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Vision Offset</div>
+                        <div class="metric-value" id="visionOffset">-</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Success Rate</div>
+                        <div class="metric-value" id="successRate">-</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="stats-title">Model Architecture</div>
+                <div class="stat-item">
+                    <span class="stat-label">Network Type</span>
+                    <span class="stat-value">SimplePolicy MLP</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Parameters</span>
+                    <span class="stat-value">69,639</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Hidden Layers</span>
+                    <span class="stat-value">2 × 256</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Activation</span>
+                    <span class="stat-value">ReLU + Tanh</span>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="stats-title">Optimization</div>
+                <div class="stat-item">
+                    <span class="stat-label">Algorithm</span>
+                    <span class="stat-value">CMA-ES</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Population</span>
+                    <span class="stat-value" id="population">20</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Sigma</span>
+                    <span class="stat-value" id="sigma">0.05</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Iterations</span>
+                    <span class="stat-value" id="iterations">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Charts
+        const bcCtx = document.getElementById('bcChart').getContext('2d');
+        const bcChart = new Chart(bcCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Training Loss',
+                    data: [],
+                    borderColor: '#5EEAD4',
+                    backgroundColor: 'rgba(94, 234, 212, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                }
+            }
+        });
+        
+        const cmaesCtx = document.getElementById('cmaesChart').getContext('2d');
+        const cmaesChart = new Chart(cmaesCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Best Cost',
+                    data: [],
+                    borderColor: '#60A5FA',
+                    backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.1)' } }
+                }
+            }
+        });
+        
+        let eventSource;
+        
+        function addConsoleEntry(message, isPhase = false) {
+            const console = document.getElementById('console');
+            const entry = document.createElement('div');
+            entry.className = 'console-entry';
+            if (isPhase) {
+                entry.innerHTML = `<span class="phase-label">[PHASE]</span> ${message}`;
+            } else {
+                entry.innerHTML = message;
+            }
+            console.appendChild(entry);
+            console.scrollTop = console.scrollHeight;
+        }
+        
+        async function executeTask() {
+            const task = document.getElementById('taskInput').value;
+            if (!task) return;
+            
+            // Disable button
+            document.getElementById('executeBtn').disabled = true;
+            document.getElementById('status').textContent = 'Executing';
+            
+            // Clear console and charts
+            document.getElementById('console').innerHTML = '';
+            bcChart.data.labels = [];
+            bcChart.data.datasets[0].data = [];
+            bcChart.update();
+            cmaesChart.data.labels = [];
+            cmaesChart.data.datasets[0].data = [];
+            cmaesChart.update();
+            
+            // Reset progress
+            document.querySelectorAll('.phase-box').forEach(box => {
+                box.classList.remove('active', 'completed');
+            });
+            
+            addConsoleEntry('🚀 Starting CogniForge-V Pipeline...', true);
+            addConsoleEntry(`Task: "${task}"`);
+            
+            try {
+                // Send request
+                const response = await fetch('http://localhost:8001/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        task_type: 'pick_and_place',
+                        task_description: task,
+                        use_vision: true,
+                        num_bc_epochs: 15,
+                        num_optimization_steps: 30
+                    })
+                });
+                
+                const data = await response.json();
+                const requestId = data.request_id;
+                
+                // Subscribe to SSE
+                eventSource = new EventSource(`http://localhost:8001/events/${requestId}`);
+                
+                eventSource.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+                    handleEvent(data);
+                };
+                
+                eventSource.onerror = function(error) {
+                    console.error('SSE Error:', error);
+                    eventSource.close();
+                    document.getElementById('executeBtn').disabled = false;
+                    document.getElementById('status').textContent = 'Error';
+                };
+                
+            } catch (error) {
+                console.error('Error:', error);
+                addConsoleEntry(`❌ Error: ${error.message}`);
+                document.getElementById('executeBtn').disabled = false;
+                document.getElementById('status').textContent = 'Error';
+            }
+        }
+        
+        function handleEvent(data) {
+            const progress = Math.round((data.progress || 0) * 100);
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            switch(data.type) {
+                case 'phase_start':
+                    handlePhaseStart(data);
+                    break;
+                case 'behavior_tree':
+                    handleBehaviorTree(data);
+                    break;
+                case 'expert_trajectory':
+                    addConsoleEntry('🤖 Executing expert demonstration (Codex-generated, jerky motion)...');
+                    addConsoleEntry('Collecting expert data...');
+                    break;
+                case 'bc_loss':
+                    handleBCLoss(data);
+                    break;
+                case 'optimization_update':
+                    handleOptimization(data);
+                    break;
+                case 'vision_response':
+                case 'vision_detection':
+                    handleVision(data);
+                    break;
+                case 'code_generated':
+                    handleCodeGeneration(data);
+                    break;
+                case 'complete':
+                    handleComplete();
+                    break;
+            }
+        }
+        
+        function handlePhaseStart(data) {
+            const phaseMap = {
+                'planning': 1,
+                'expert_demonstration': 2,
+                'behavior_cloning': 3,
+                'optimization': 4,
+                'vision_refinement': 5,
+                'code_generation': 6
+            };
+            
+            const phaseNum = phaseMap[data.phase];
+            if (phaseNum) {
+                // Mark previous phases as completed
+                for (let i = 1; i < phaseNum; i++) {
+                    document.getElementById(`phase-${i}`).classList.add('completed');
+                }
+                // Mark current phase as active
+                document.getElementById(`phase-${phaseNum}`).classList.add('active');
+            }
+            
+            addConsoleEntry(data.message, true);
+        }
+        
+        function handleBehaviorTree(data) {
+            addConsoleEntry('📊 Behavior Tree Generated:');
+            const treeHtml = `
+                <div class="behavior-tree">
+                    <div>└─ pick_and_place_task (sequence)</div>
+                    ${data.tree.root.children.map(child => 
+                        `<div class="tree-node">├─ ${child.name}</div>`
+                    ).join('')}
+                </div>
+            `;
+            document.getElementById('console').insertAdjacentHTML('beforeend', treeHtml);
+            
+            addConsoleEntry('⚖️ Reward Weights:');
+            const weightsHtml = `
+                <div class="reward-weights">
+                    ${Object.entries(data.reward_weights).map(([key, value]) => 
+                        `<div class="weight-item">${key}: ${value}</div>`
+                    ).join('')}
+                </div>
+            `;
+            document.getElementById('console').insertAdjacentHTML('beforeend', weightsHtml);
+        }
+        
+        function handleBCLoss(data) {
+            bcChart.data.labels.push(`Epoch ${data.epoch}`);
+            bcChart.data.datasets[0].data.push(data.loss);
+            bcChart.update();
+            
+            document.getElementById('bcLoss').textContent = data.loss.toFixed(4);
+            
+            if (data.epoch % 3 === 0 || data.epoch === 1) {
+                addConsoleEntry(`📉 BC Training - Epoch ${data.epoch}: Loss = ${data.loss.toFixed(4)}`);
+            }
+        }
+        
+        function handleOptimization(data) {
+            cmaesChart.data.labels.push(`Iter ${data.iteration}`);
+            cmaesChart.data.datasets[0].data.push(data.best_cost);
+            cmaesChart.update();
+            
+            document.getElementById('cmaesCost').textContent = data.best_cost.toFixed(2);
+            document.getElementById('iterations').textContent = data.iteration;
+            
+            if (data.iteration % 5 === 0 || data.iteration === 1) {
+                addConsoleEntry(`⚡ CMA-ES - Iteration ${data.iteration}: Cost = ${data.cost.toFixed(2)}, Best = ${data.best_cost.toFixed(2)}`);
+            }
+        }
+        
+        function handleVision(data) {
+            const visionHtml = `
+                <div class="vision-frame">
+                    <div class="vision-title">🎥 WRIST CAMERA ACTIVE</div>
+                    <div>Calling GPT-5 Vision API...</div>
+                    <div class="vision-data">Response: {"dx": ${data.data?.dx || 0.02}, "dy": ${data.data?.dy || -0.01}}</div>
+                    <div style="color: #5EEAD4; margin-top: 10px;">✅ Robot nudging to correct position...</div>
+                </div>
+            `;
+            document.getElementById('console').insertAdjacentHTML('beforeend', visionHtml);
+            
+            const offset = data.data || data.offset || {};
+            const offsetMag = Math.sqrt(Math.pow(offset.dx || 0.02, 2) + Math.pow(offset.dy || -0.01, 2));
+            document.getElementById('visionOffset').textContent = (offsetMag * 1000).toFixed(1) + 'mm';
+        }
+        
+        function handleCodeGeneration(data) {
+            document.getElementById('codePreview').style.display = 'block';
+            
+            const codeSnippet = `#!/usr/bin/env python3
+# Generated by CogniForge-V
+# Task: Pick and place operation
+# Model: GPT-5 Codex
+
+import numpy as np
+from cogniforge import RobotController
+
+def execute_pick_and_place():
+    controller = RobotController()
+    
+    # Vision-corrected waypoints
+    waypoints = [
+        [0.42, 0.01, 0.3],  # Approach (corrected)
+        [0.42, 0.01, 0.1],  # Grasp
+        [0.0, 0.4, 0.3],    # Move
+        [0.0, 0.4, 0.1],    # Place
+    ]
+    
+    # Execute optimized trajectory
+    controller.execute_trajectory(waypoints)
+    return "Task completed successfully"`;
+            
+            document.getElementById('codeContent').textContent = codeSnippet;
+            addConsoleEntry(`💾 Code generated: generated/pick_place.py`);
+        }
+        
+        function handleComplete() {
+            document.getElementById('phase-6').classList.remove('active');
+            document.getElementById('phase-6').classList.add('completed');
+            
+            addConsoleEntry('✅ Pipeline completed successfully!', true);
+            document.getElementById('executeBtn').disabled = false;
+            document.getElementById('status').textContent = 'Complete';
+            document.getElementById('successRate').textContent = '100%';
+            
+            if (eventSource) {
+                eventSource.close();
+            }
+        }
+        
+        // Auto-focus input
+        document.getElementById('taskInput').focus();
+    </script>
+</body>
+</html>

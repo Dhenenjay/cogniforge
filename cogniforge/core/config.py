@@ -57,6 +57,12 @@ class Settings:
             )
             self.openai_api_key = None
         
+        # OpenAI Model Settings
+        self.openai_model: str = os.getenv("OPENAI_MODEL", "gpt-5")
+        self.openai_codex_model: str = os.getenv("OPENAI_CODEX_MODEL", "gpt-5-codex")
+        self.openai_api_timeout: float = float(os.getenv("OPENAI_API_TIMEOUT", "30"))
+        self.openai_max_retries: int = int(os.getenv("OPENAI_MAX_RETRIES", "3"))
+        
         # PyBullet Configuration
         self.pybullet_gui: bool = os.getenv("PYBULLET_GUI", "false").lower() == "true"
         self.pybullet_options: str = os.getenv("PYBULLET_OPTIONS", "")

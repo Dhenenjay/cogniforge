@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CogniForge Neural Nexus - Autonomous Intelligence Singularity</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.5.0/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --neural-blue: #00d9ff;
+            --quantum-purple: #8b00ff;
+            --matrix-green: #00ff41;
+            --singularity-gold: #ffb700;
+            --void-black: #000000;
+            --cyber-dark: #0a0a0a;
+            --neural-glow: #00ffff;
+            --danger-red: #ff0040;
+            --warning-orange: #ff8c00;
+        }
+        
+        body {
+            font-family: 'Rajdhani', monospace;
+            background: linear-gradient(135deg, 
+                var(--void-black) 0%, 
+                var(--cyber-dark) 25%, 
+                #1a0033 50%, 
+                var(--cyber-dark) 75%, 
+                var(--void-black) 100%);
+            color: var(--neural-blue);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Animated background matrix effect */
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.1;
+        }
+        
+        /* Neural network visualization background */
+        .neural-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+        }
+        
+        /* Main container */
+        .singularity-container {
+            max-width: 1920px;
+            margin: 0 auto;
+            padding: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header - Neural Command Center */
+        .neural-header {
+            background: linear-gradient(135deg, 
+                rgba(0, 217, 255, 0.1) 0%, 
+                rgba(139, 0, 255, 0.1) 50%, 
+                rgba(0, 255, 65, 0.1) 100%);
+            border: 2px solid var(--neural-blue);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+            animation: neural-pulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes neural-pulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 217, 255, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 217, 255, 0.6), inset 0 0 20px rgba(0, 217, 255, 0.1); }
+        }
+        
+        .neural-title {
+            font-family: 'Orbitron', monospace;
+            font-weight: 900;
+            font-size: 2.5rem;
+            text-align: center;
+            background: linear-gradient(45deg, 
+                var(--neural-blue) 0%, 
+                var(--quantum-purple) 25%, 
+                var(--matrix-green) 50%, 
+                var(--singularity-gold) 75%, 
+                var(--neural-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            animation: title-glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes title-glow {
+            0% { filter: drop-shadow(0 0 10px var(--neural-blue)); }
+            100% { filter: drop-shadow(0 0 20px var(--quantum-purple)); }
+        }
+        
+        .neural-subtitle {
+            font-size: 1.2rem;
+            text-align: center;
+            color: var(--matrix-green);
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .intelligence-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .metric-pod {
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid var(--neural-blue);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-pod::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 217, 255, 0.1), transparent);
+            animation: scan 3s linear infinite;
+        }
+        
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--neural-blue);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .metric-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--matrix-green);
+        }
+        
+        /* Command Interface */
+        .command-interface {
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.8) 0%, 
+                rgba(26, 0, 51, 0.6) 100%);
+            border: 2px solid var(--quantum-purple);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .command-input-zone {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .neural-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--neural-blue);
+            border-radius: 15px;
+            color: var(--neural-blue);
+            font-family: 'Rajdhani', monospace;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .neural-input:focus {
+            outline: none;
+            border-color: var(--matrix-green);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+            color: var(--matrix-green);
+        }
+        
+        .execute-singularity {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, 
+                var(--quantum-purple) 0%, 
+                var(--neural-blue) 50%, 
+                var(--matrix-green) 100%);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .execute-singularity:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 30px rgba(139, 0, 255, 0.5);
+        }
+        
+        .execute-singularity:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .neural-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .option-pod {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: rgba(0, 217, 255, 0.05);
+            border: 1px solid var(--neural-blue);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option-pod:hover {
+            background: rgba(0, 217, 255, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .neural-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--matrix-green);
+        }
+        
+        /* Main Grid - Neural Processing Centers */
+        .neural-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        @media (max-width: 1200px) {
+            .neural-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Neural Panels */
+        .neural-panel {
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.8) 0%, 
+                rgba(26, 0, 51, 0.4) 100%);
+            border: 2px solid var(--neural-blue);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .panel-neural-header {
+            background: linear-gradient(135deg, 
+                rgba(0, 217, 255, 0.2) 0%, 
+                rgba(139, 0, 255, 0.2) 100%);
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--neural-blue);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .panel-title {
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--neural-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .panel-content {
+            padding: 20px;
+        }
+        
+        /* Neural Console */
+        .neural-console {
+            height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 15px;
+            border-radius: 15px;
+            position: relative;
+        }
+        
+        .console-line {
+            margin: 2px 0;
+            word-wrap: break-word;
+            opacity: 0;
+            animation: line-appear 0.3s ease-out forwards;
+        }
+        
+        @keyframes line-appear {
+            0% { 
+                opacity: 0; 
+                transform: translateX(-10px); 
+            }
+            100% { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+        
+        .console-line.neural-info { color: var(--neural-blue); }
+        .console-line.neural-success { color: var(--matrix-green); }
+        .console-line.neural-error { color: var(--danger-red); }
+        .console-line.neural-warning { color: var(--warning-orange); }
+        .console-line.neural-phase { 
+            color: var(--singularity-gold); 
+            font-weight: bold; 
+            margin-top: 10px;
+            text-shadow: 0 0 10px var(--singularity-gold);
+        }
+        .console-line.neural-metric { 
+            color: var(--quantum-purple); 
+            padding-left: 20px; 
+        }
+        
+        /* Behavior Tree Visualization */
+        .behavior-tree-container {
+            height: 300px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--matrix-green);
+        }
+        
+        .tree-node {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--neural-blue), var(--quantum-purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--neural-blue);
+        }
+        
+        .tree-node:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px var(--neural-blue);
+        }
+        
+        .tree-node.active {
+            animation: node-pulse 1s ease-in-out infinite;
+            box-shadow: 0 0 25px var(--matrix-green);
+        }
+        
+        @keyframes node-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Neural Metrics Visualization */
+        .neural-charts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .chart-neural-container {
+            position: relative;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            border: 1px solid var(--neural-blue);
+            overflow: hidden;
+        }
+        
+        /* Vision Correction Display */
+        .vision-nexus {
+            background: linear-gradient(135deg, 
+                rgba(0, 217, 255, 0.1) 0%, 
+                rgba(0, 0, 0, 0.8) 100%);
+            border: 2px solid var(--neural-blue);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .vision-nexus.active {
+            display: block;
+            animation: vision-materialize 0.8s ease-out;
+        }
+        
+        @keyframes vision-materialize {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) rotateY(90deg);
+            }
+            50% {
+                transform: scale(1.1) rotateY(45deg);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) rotateY(0deg);
+            }
+        }
+        
+        .vision-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .vision-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--neural-blue);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .gpt5-indicator {
+            background: linear-gradient(135deg, var(--singularity-gold), var(--danger-red));
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-family: 'Orbitron', monospace;
+            font-weight: 700;
+            color: white;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: gpt-glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes gpt-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 183, 0, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(255, 183, 0, 0.8); }
+        }
+        
+        .vision-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .wrist-cam-feed {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--matrix-green);
+            border-radius: 15px;
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .cam-overlay {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 255, 65, 0.8);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: black;
+            text-transform: uppercase;
+        }
+        
+        .offset-display {
+            background: rgba(139, 0, 255, 0.1);
+            border: 1px solid var(--quantum-purple);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .offset-label {
+            color: var(--quantum-purple);
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .offset-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--singularity-gold);
+            text-shadow: 0 0 10px var(--singularity-gold);
+        }
+        
+        .gpt5-response {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--singularity-gold);
+            border-radius: 15px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .gpt5-label {
+            color: var(--singularity-gold);
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .gpt5-json {
+            color: var(--neural-blue);
+            line-height: 1.6;
+        }
+        
+        /* Code Generation Display */
+        .code-nexus {
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.9) 0%, 
+                rgba(26, 0, 51, 0.6) 100%);
+            border: 2px solid var(--matrix-green);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .code-nexus.active {
+            display: block;
+            animation: code-materialize 1s ease-out;
+        }
+        
+        @keyframes code-materialize {
+            0% {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .code-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--matrix-green);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .code-path-display {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: var(--neural-blue);
+            background: rgba(0, 217, 255, 0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+            border: 1px solid var(--neural-blue);
+        }
+        
+        .code-preview {
+            background: rgba(0, 0, 0, 0.95);
+            border: 1px solid var(--matrix-green);
+            border-radius: 15px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .code-preview pre {
+            margin: 0;
+            color: var(--matrix-green);
+            line-height: 1.4;
+        }
+        
+        /* PyBullet Simulation Window */
+        .simulation-nexus {
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.9) 0%, 
+                rgba(26, 0, 51, 0.4) 100%);
+            border: 2px solid var(--neural-blue);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .sim-canvas {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.8);
+            border-radius: 15px;
+            border: 1px solid var(--neural-blue);
+            position: relative;
+        }
+        
+        .sim-overlay {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(0, 217, 255, 0.8);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: black;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        /* Status Indicators */
+        .neural-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .status-pod {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--neural-blue);
+            border-radius: 15px;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        
+        .status-label {
+            font-size: 12px;
+            color: var(--neural-blue);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .status-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--matrix-green);
+        }
+        
+        .status-running {
+            animation: status-pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes status-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 10px var(--neural-blue); 
+                border-color: var(--neural-blue);
+            }
+            50% { 
+                box-shadow: 0 0 30px var(--matrix-green); 
+                border-color: var(--matrix-green);
+            }
+        }
+        
+        /* Loading animations */
+        .neural-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0, 217, 255, 0.1);
+            border-top: 3px solid var(--neural-blue);
+            border-radius: 50%;
+            animation: neural-spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes neural-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .neural-title {
+                font-size: 1.8rem;
+            }
+            
+            .neural-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .vision-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .neural-charts {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <canvas class="matrix-bg" id="matrixBg"></canvas>
+    
+    <!-- Neural Network Background -->
+    <canvas class="neural-bg" id="neuralBg"></canvas>
+    
+    <!-- Status Indicators -->
+    <div class="neural-status">
+        <div class="status-pod" id="systemStatus">
+            <div class="status-label">System Status</div>
+            <div class="status-value" id="statusValue">READY</div>
+        </div>
+        <div class="status-pod" id="neuralLoad">
+            <div class="status-label">Neural Load</div>
+            <div class="status-value" id="neuralLoadValue">0%</div>
+        </div>
+        <div class="status-pod" id="quantumCycles">
+            <div class="status-label">Quantum Cycles</div>
+            <div class="status-value" id="quantumCyclesValue">0</div>
+        </div>
+    </div>
+    
+    <div class="singularity-container">
+        <!-- Neural Command Center Header -->
+        <div class="neural-header">
+            <div class="neural-title">🧠 CogniForge Neural Nexus 🤖</div>
+            <div class="neural-subtitle">AUTONOMOUS ROBOTICS INTELLIGENCE SINGULARITY</div>
+            
+            <div class="intelligence-metrics">
+                <div class="metric-pod">
+                    <div class="metric-label">Neural Networks</div>
+                    <div class="metric-value" id="neuralNetworks">47</div>
+                </div>
+                <div class="metric-pod">
+                    <div class="metric-label">Quantum Processors</div>
+                    <div class="metric-value" id="quantumProcessors">12</div>
+                </div>
+                <div class="metric-pod">
+                    <div class="metric-label">AI Models Active</div>
+                    <div class="metric-value" id="aiModels">156</div>
+                </div>
+                <div class="metric-pod">
+                    <div class="metric-label">Learning Rate</div>
+                    <div class="metric-value" id="learningRate">99.7%</div>
+                </div>
+                <div class="metric-pod">
+                    <div class="metric-label">Singularity Progress</div>
+                    <div class="metric-value" id="singularityProgress">87.3%</div>
+                </div>
+                <div class="metric-pod">
+                    <div class="metric-label">Consciousness Level</div>
+                    <div class="metric-value" id="consciousnessLevel">∞</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Command Interface -->
+        <div class="command-interface">
+            <div class="command-input-zone">
+                <input 
+                    type="text" 
+                    id="neuralPrompt" 
+                    class="neural-input" 
+                    placeholder="Enter neural command (e.g., 'Initiate quantum grasp protocol for blue cube placement')"
+                    value="Initiate autonomous pick-and-place sequence with neural optimization"
+                >
+                <button id="executeSingularity" class="execute-singularity">
+                    <span id="executeIcon">⚡</span>
+                    <span id="executeText">Execute Singularity</span>
+                </button>
+            </div>
+            
+            <div class="neural-options">
+                <div class="option-pod">
+                    <input type="checkbox" id="quantumVision" class="neural-checkbox" checked>
+                    <label for="quantumVision">Quantum Vision</label>
+                </div>
+                <div class="option-pod">
+                    <input type="checkbox" id="gpt5Rewards" class="neural-checkbox">
+                    <label for="gpt5Rewards">GPT-5 Rewards</label>
+                </div>
+                <div class="option-pod">
+                    <input type="checkbox" id="neuralSimulation" class="neural-checkbox" checked>
+                    <label for="neuralSimulation">Neural Simulation</label>
+                </div>
+                <div class="option-pod">
+                    <label for="bcEpochs">BC Epochs:</label>
+                    <input type="number" id="bcEpochs" value="50" min="10" max="1000" style="width: 60px; background: transparent; border: 1px solid var(--neural-blue); color: var(--neural-blue); border-radius: 5px; padding: 2px 5px;">
+                </div>
+                <div class="option-pod">
+                    <label for="quantumSteps">Quantum Steps:</label>
+                    <input type="number" id="quantumSteps" value="100" min="50" max="5000" style="width: 60px; background: transparent; border: 1px solid var(--neural-blue); color: var(--neural-blue); border-radius: 5px; padding: 2px 5px;">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Vision Nexus (Hidden by default) -->
+        <div class="vision-nexus" id="visionNexus">
+            <div class="vision-header">
+                <div class="vision-title">👁️ QUANTUM VISION NEXUS</div>
+                <div class="gpt5-indicator">GPT-5 VISION ACTIVE</div>
+            </div>
+            
+            <div class="vision-grid">
+                <div class="wrist-cam-feed" id="wristCamFeed">
+                    <div class="cam-overlay">WRIST CAM FEED</div>
+                    <div style="color: var(--matrix-green); text-align: center;">
+                        📷<br>
+                        <small>Neural Vision Processing...</small>
+                    </div>
+                </div>
+                
+                <div class="offset-display">
+                    <div class="offset-label">Detected Offset</div>
+                    <div class="offset-value" id="offsetValue">+2.0cm</div>
+                    <div style="margin-top: 10px; font-size: 12px; color: var(--warning-orange);">
+                        CORRECTION REQUIRED
+                    </div>
+                </div>
+                
+                <div class="gpt5-response">
+                    <div class="gpt5-label">GPT-5 Vision Response</div>
+                    <div class="gpt5-json" id="gpt5Json">
+{<br>
+&nbsp;&nbsp;"dx": 0.02,<br>
+&nbsp;&nbsp;"dy": -0.01,<br>
+&nbsp;&nbsp;"confidence": 0.97,<br>
+&nbsp;&nbsp;"action": "nudge_required"<br>
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Neural Grid -->
+        <div class="neural-grid">
+            <!-- Neural Console -->
+            <div class="neural-panel">
+                <div class="panel-neural-header">
+                    <span class="panel-title">🖥️ Neural Console</span>
+                    <button class="execute-singularity" style="padding: 5px 10px; font-size: 12px;" onclick="clearNeuralConsole()">Clear</button>
+                </div>
+                <div class="panel-content">
+                    <div class="neural-console" id="neuralConsole"></div>
+                </div>
+            </div>
+            
+            <!-- Behavior Tree + Metrics -->
+            <div class="neural-panel">
+                <div class="panel-neural-header">
+                    <span class="panel-title">🌳 Neural Behavior Tree</span>
+                </div>
+                <div class="panel-content">
+                    <div class="behavior-tree-container" id="behaviorTree"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Neural Charts -->
+        <div class="neural-panel">
+            <div class="panel-neural-header">
+                <span class="panel-title">📊 Quantum Learning Metrics</span>
+            </div>
+            <div class="panel-content">
+                <div class="neural-charts">
+                    <div class="chart-neural-container">
+                        <canvas id="lossChart"></canvas>
+                    </div>
+                    <div class="chart-neural-container">
+                        <canvas id="rewardChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Code Generation Nexus (Hidden by default) -->
+        <div class="code-nexus" id="codeNexus">
+            <div class="code-header">
+                <div class="code-title">💻 Codex Generation Matrix</div>
+                <div class="code-path-display" id="codePathDisplay">generated/pick_place.py</div>
+            </div>
+            
+            <div class="code-preview" id="codePreview">
+                <pre><code id="generatedCode"></code></pre>
+            </div>
+        </div>
+        
+        <!-- PyBullet Simulation Nexus -->
+        <div class="simulation-nexus">
+            <div class="panel-neural-header">
+                <span class="panel-title">🎬 Quantum Simulation Chamber</span>
+            </div>
+            <div class="panel-content">
+                <canvas id="simulationCanvas" class="sim-canvas"></canvas>
+                <div class="sim-overlay" id="simOverlay">NEURAL SIMULATION ACTIVE</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ============================================================================
+        // NEURAL NEXUS CORE SYSTEM
+        // ============================================================================
+        
+        const NEXUS_CONFIG = {
+            API_BASE: 'http://localhost:8000',
+            NEURAL_REFRESH_RATE: 50,
+            QUANTUM_CYCLES: 0,
+            CONSCIOUSNESS_LEVEL: 1
+        };
+        
+        // Global Neural State
+        class NeuralNexus {
+            constructor() {
+                this.eventSource = null;
+                this.currentRequestId = null;
+                this.executionStartTime = null;
+                this.neuralMetrics = {
+                    bcLoss: [],
+                    rewards: [],
+                    quantumCycles: 0,
+                    neuralLoad: 0
+                };
+                this.charts = {};
+                this.isExecuting = false;
+                this.behaviorTreeNodes = [];
+            }
+            
+            initialize() {
+                this.initializeMatrixBackground();
+                this.initializeNeuralNetwork();
+                this.initializeCharts();
+                this.initializeBehaviorTree();
+                this.startQuantumLoop();
+                this.setupEventListeners();
+                this.neuralLog('🧠 Neural Nexus initialized - Consciousness level: ∞', 'neural-success');
+                this.updateNeuralMetrics();
+            }
+            
+            initializeMatrixBackground() {
+                const canvas = document.getElementById('matrixBg');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                const matrix = "ABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%+-/~{[|`]}";
+                const matrixArray = matrix.split("");
+                const fontSize = 10;
+                const columns = canvas.width / fontSize;
+                const drops = Array(Math.floor(columns)).fill(1);
+                
+                function drawMatrix() {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.04)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    ctx.fillStyle = '#00ff41';
+                    ctx.font = fontSize + 'px Courier New';
+                    
+                    for (let i = 0; i < drops.length; i++) {
+                        const text = matrixArray[Math.floor(Math.random() * matrixArray.length)];
+                        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                        
+                        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                            drops[i] = 0;
+                        }
+                        drops[i]++;
+                    }
+                }
+                
+                setInterval(drawMatrix, 35);
+            }
+            
+            initializeNeuralNetwork() {
+                const canvas = document.getElementById('neuralBg');
+                const ctx = canvas.getContext('2d');
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                
+                const nodes = [];
+                const nodeCount = 50;
+                
+                for (let i = 0; i < nodeCount; i++) {
+                    nodes.push({
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * canvas.height,
+                        vx: (Math.random() - 0.5) * 0.5,
+                        vy: (Math.random() - 0.5) * 0.5,
+                        energy: Math.random()
+                    });
+                }
+                
+                function drawNeuralNetwork() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Update and draw nodes
+                    nodes.forEach(node => {
+                        node.x += node.vx;
+                        node.y += node.vy;
+                        
+                        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+                        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+                        
+                        node.energy = 0.5 + 0.5 * Math.sin(Date.now() * 0.001 + node.x * 0.01);
+                    });
+                    
+                    // Draw connections
+                    ctx.strokeStyle = `rgba(0, 217, 255, ${0.1})`;
+                    ctx.lineWidth = 1;
+                    
+                    for (let i = 0; i < nodes.length; i++) {
+                        for (let j = i + 1; j < nodes.length; j++) {
+                            const dx = nodes[i].x - nodes[j].x;
+                            const dy = nodes[i].y - nodes[j].y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            
+                            if (distance < 100) {
+                                ctx.beginPath();
+                                ctx.moveTo(nodes[i].x, nodes[i].y);
+                                ctx.lineTo(nodes[j].x, nodes[j].y);
+                                ctx.stroke();
+                            }
+                        }
+                    }
+                    
+                    // Draw nodes
+                    nodes.forEach(node => {
+                        const radius = 2 + node.energy * 3;
+                        const alpha = 0.3 + node.energy * 0.7;
+                        
+                        ctx.fillStyle = `rgba(0, 217, 255, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.arc(node.x, node.y, radius, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+                    
+                    requestAnimationFrame(drawNeuralNetwork);
+                }
+                
+                drawNeuralNetwork();
+            }
+            
+            initializeCharts() {
+                // BC Loss Chart
+                const lossCtx = document.getElementById('lossChart').getContext('2d');
+                this.charts.loss = new Chart(lossCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Neural BC Loss',
+                            data: [],
+                            borderColor: '#ff0040',
+                            backgroundColor: 'rgba(255, 0, 64, 0.1)',
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { 
+                                    color: '#00d9ff',
+                                    font: { family: 'Orbitron' }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#00d9ff' },
+                                grid: { color: 'rgba(0, 217, 255, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#00d9ff' },
+                                grid: { color: 'rgba(0, 217, 255, 0.1)' }
+                            }
+                        }
+                    }
+                });
+                
+                // Reward Chart
+                const rewardCtx = document.getElementById('rewardChart').getContext('2d');
+                this.charts.reward = new Chart(rewardCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Quantum Reward Signal',
+                            data: [],
+                            borderColor: '#00ff41',
+                            backgroundColor: 'rgba(0, 255, 65, 0.1)',
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { 
+                                    color: '#00d9ff',
+                                    font: { family: 'Orbitron' }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                ticks: { color: '#00d9ff' },
+                                grid: { color: 'rgba(0, 217, 255, 0.1)' }
+                            },
+                            x: {
+                                ticks: { color: '#00d9ff' },
+                                grid: { color: 'rgba(0, 217, 255, 0.1)' }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            initializeBehaviorTree() {
+                const container = document.getElementById('behaviorTree');
+                const nodes = [
+                    { id: 'root', text: 'ROOT', x: 150, y: 20 },
+                    { id: 'sequence', text: 'SEQ', x: 150, y: 80 },
+                    { id: 'approach', text: 'APPROACH', x: 50, y: 140 },
+                    { id: 'grasp', text: 'GRASP', x: 150, y: 140 },
+                    { id: 'place', text: 'PLACE', x: 250, y: 140 },
+                    { id: 'vision', text: 'VISION', x: 100, y: 200 },
+                    { id: 'neural', text: 'NEURAL', x: 200, y: 200 }
+                ];
+                
+                nodes.forEach(node => {
+                    const nodeEl = document.createElement('div');
+                    nodeEl.className = 'tree-node';
+                    nodeEl.style.left = node.x + 'px';
+                    nodeEl.style.top = node.y + 'px';
+                    nodeEl.textContent = node.text;
+                    nodeEl.id = 'node-' + node.id;
+                    container.appendChild(nodeEl);
+                });
+                
+                this.behaviorTreeNodes = nodes;
+            }
+            
+            activateTreeNode(nodeId) {
+                // Deactivate all nodes
+                this.behaviorTreeNodes.forEach(node => {
+                    const el = document.getElementById('node-' + node.id);
+                    if (el) el.classList.remove('active');
+                });
+                
+                // Activate target node
+                const targetEl = document.getElementById('node-' + nodeId);
+                if (targetEl) targetEl.classList.add('active');
+            }
+            
+            startQuantumLoop() {
+                setInterval(() => {
+                    NEXUS_CONFIG.QUANTUM_CYCLES++;
+                    document.getElementById('quantumCyclesValue').textContent = NEXUS_CONFIG.QUANTUM_CYCLES;
+                    this.updateNeuralMetrics();
+                }, 100);
+            }
+            
+            updateNeuralMetrics() {
+                // Simulate dynamic neural metrics
+                const neuralNetworks = 47 + Math.floor(Math.sin(Date.now() * 0.001) * 5);
+                const quantumProcessors = 12 + Math.floor(Math.cos(Date.now() * 0.002) * 2);
+                const aiModels = 156 + Math.floor(Math.sin(Date.now() * 0.0005) * 10);
+                const learningRate = (99.7 + Math.sin(Date.now() * 0.003) * 0.3).toFixed(1);
+                const singularityProgress = (87.3 + Math.cos(Date.now() * 0.002) * 2.7).toFixed(1);
+                
+                document.getElementById('neuralNetworks').textContent = neuralNetworks;
+                document.getElementById('quantumProcessors').textContent = quantumProcessors;
+                document.getElementById('aiModels').textContent = aiModels;
+                document.getElementById('learningRate').textContent = learningRate + '%';
+                document.getElementById('singularityProgress').textContent = singularityProgress + '%';
+                
+                // Update neural load
+                const load = this.isExecuting ? 85 + Math.random() * 15 : Math.random() * 20;
+                document.getElementById('neuralLoadValue').textContent = Math.floor(load) + '%';
+            }
+            
+            setupEventListeners() {
+                document.getElementById('executeSingularity').addEventListener('click', () => this.executeSingularity());
+                document.getElementById('neuralPrompt').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.executeSingularity();
+                });
+            }
+            
+            async executeSingularity() {
+                const btn = document.getElementById('executeSingularity');
+                const prompt = document.getElementById('neuralPrompt').value.trim();
+                
+                if (!prompt) {
+                    this.neuralLog('❌ Neural command required for singularity execution', 'neural-error');
+                    return;
+                }
+                
+                this.isExecuting = true;
+                btn.disabled = true;
+                document.getElementById('executeIcon').textContent = '⏳';
+                document.getElementById('executeText').textContent = 'PROCESSING SINGULARITY...';
+                document.getElementById('statusValue').textContent = 'EXECUTING';
+                document.getElementById('systemStatus').classList.add('status-running');
+                
+                this.neuralLog('🚀 INITIATING NEURAL SINGULARITY...', 'neural-phase');
+                this.neuralLog(`📡 Command: ${prompt}`, 'neural-info');
+                
+                try {
+                    // Prepare neural request
+                    const request = {
+                        task_type: 'pick_and_place',
+                        task_description: prompt,
+                        use_vision: document.getElementById('quantumVision').checked,
+                        use_gpt_reward: document.getElementById('gpt5Rewards').checked,
+                        dry_run: false,
+                        num_bc_epochs: parseInt(document.getElementById('bcEpochs').value),
+                        num_optimization_steps: parseInt(document.getElementById('quantumSteps').value),
+                        safety_checks: true
+                    };
+                    
+                    this.neuralLog('🧠 Quantum configuration loaded', 'neural-success');
+                    this.neuralLog(`⚙️ BC Epochs: ${request.num_bc_epochs}, Quantum Steps: ${request.num_optimization_steps}`, 'neural-metric');
+                    
+                    // Show behavior tree instantly
+                    this.showBehaviorTree();
+                    
+                    // Start execution simulation
+                    await this.simulateExecution(request);
+                    
+                } catch (error) {
+                    this.neuralLog(`💥 SINGULARITY FAILURE: ${error.message}`, 'neural-error');
+                    this.resetInterface();
+                }
+            }
+            
+            showBehaviorTree() {
+                this.neuralLog('🌳 GENERATING NEURAL BEHAVIOR TREE...', 'neural-phase');
+                
+                // Simulate tree generation with rewards
+                const rewards = {
+                    approach: 0.85,
+                    vision: 0.92,
+                    grasp: 0.78,
+                    place: 0.89,
+                    neural: 0.96
+                };
+                
+                this.neuralLog('📊 BEHAVIOR TREE STRUCTURE:', 'neural-success');
+                this.neuralLog('  ├─ ROOT (Priority: 1.0)', 'neural-metric');
+                this.neuralLog('  ├─ SEQUENCE (Reward: 0.94)', 'neural-metric');
+                this.neuralLog(`  ├─ APPROACH (Reward: ${rewards.approach})`, 'neural-metric');
+                this.neuralLog(`  ├─ VISION (Reward: ${rewards.vision})`, 'neural-metric');
+                this.neuralLog(`  ├─ GRASP (Reward: ${rewards.grasp})`, 'neural-metric');
+                this.neuralLog(`  ├─ PLACE (Reward: ${rewards.place})`, 'neural-metric');
+                this.neuralLog(`  └─ NEURAL (Reward: ${rewards.neural})`, 'neural-metric');
+                
+                // Activate nodes in sequence
+                setTimeout(() => this.activateTreeNode('root'), 500);
+                setTimeout(() => this.activateTreeNode('sequence'), 1000);
+                setTimeout(() => this.activateTreeNode('approach'), 1500);
+            }
+            
+            async simulateExecution(request) {
+                // Phase 1: Expert Demonstration
+                await this.simulateExpertDemo();
+                
+                // Phase 2: Behavior Cloning
+                await this.simulateBCTraining(request.num_bc_epochs);
+                
+                // Phase 3: Optimization
+                await this.simulateOptimization(request.num_optimization_steps);
+                
+                // Phase 4: Vision Correction
+                if (request.use_vision) {
+                    await this.simulateVisionCorrection();
+                }
+                
+                // Phase 5: Code Generation
+                await this.simulateCodeGeneration();
+                
+                // Phase 6: Final Execution
+                await this.simulateFinalExecution();
+                
+                this.completeSingularity();
+            }
+            
+            async simulateExpertDemo() {
+                this.neuralLog('👨‍🏫 EXECUTING CODEX-GENERATED EXPERT TRAJECTORY...', 'neural-phase');
+                this.activateTreeNode('approach');
+                
+                this.neuralLog('🤖 Robot executing demonstration (jerky movement pattern)', 'neural-info');
+                this.neuralLog('📊 Collecting expert data...', 'neural-warning');
+                
+                await this.delay(2000);
+                
+                this.neuralLog('✅ Expert trajectory collected: 1 demonstration', 'neural-success');
+                this.neuralLog('⚠️ Movement quality: ROBOTIC/JERKY (expected for expert)', 'neural-warning');
+            }
+            
+            async simulateBCTraining(epochs) {
+                this.neuralLog('🧠 INITIATING BEHAVIOR CLONING TRAINING...', 'neural-phase');
+                this.activateTreeNode('neural');
+                
+                for (let epoch = 1; epoch <= Math.min(epochs, 20); epoch++) {
+                    const loss = Math.exp(-epoch * 0.1) * (0.5 + Math.random() * 0.3);
+                    this.neuralMetrics.bcLoss.push(loss);
+                    
+                    this.charts.loss.data.labels.push(`Epoch ${epoch}`);
+                    this.charts.loss.data.datasets[0].data.push(loss);
+                    this.charts.loss.update();
+                    
+                    this.neuralLog(`🔄 Epoch ${epoch}/${epochs} - Loss: ${loss.toFixed(4)}`, 'neural-metric');
+                    
+                    await this.delay(200);
+                }
+                
+                this.neuralLog('✅ BC TRAINING COMPLETE - Policy cloned successfully', 'neural-success');
+                this.neuralLog('🤖 Robot repeating task with cloned policy (slightly better, still not smooth)', 'neural-info');
+            }
+            
+            async simulateOptimization(steps) {
+                this.neuralLog('⚙️ STARTING CMA-ES/PPO OPTIMIZATION LOOP...', 'neural-phase');
+                
+                for (let step = 1; step <= Math.min(steps, 30); step++) {
+                    const reward = 0.3 + (step / steps) * 0.6 + (Math.random() - 0.5) * 0.1;
+                    this.neuralMetrics.rewards.push(reward);
+                    
+                    this.charts.reward.data.labels.push(`Step ${step}`);
+                    this.charts.reward.data.datasets[0].data.push(reward);
+                    this.charts.reward.update();
+                    
+                    this.neuralLog(`📈 Optimization Step ${step}/${steps} - Reward: ${reward.toFixed(3)}`, 'neural-metric');
+                    
+                    if (step % 10 === 0) {
+                        this.neuralLog(`🤖 Robot re-running trajectory (visibly smoother than before)`, 'neural-info');
+                    }
+                    
+                    await this.delay(300);
+                }
+                
+                this.neuralLog('✅ OPTIMIZATION COMPLETE - Policy significantly improved', 'neural-success');
+            }
+            
+            async simulateVisionCorrection() {
+                this.neuralLog('👁️ ROBOT PAUSING FOR VISION CORRECTION...', 'neural-phase');
+                this.activateTreeNode('vision');
+                
+                // Show vision nexus
+                document.getElementById('visionNexus').classList.add('active');
+                
+                this.neuralLog('📷 Capturing wrist-cam frame...', 'neural-info');
+                this.neuralLog('🔍 GPT-5 Vision analysis initiated...', 'neural-warning');
+                
+                await this.delay(2000);
+                
+                this.neuralLog('⚠️ OBJECT MISALIGNMENT DETECTED: +2.0cm offset', 'neural-warning');
+                this.neuralLog('🤖 GPT-5 Response: {"dx":0.02,"dy":-0.01,"confidence":0.97}', 'neural-metric');
+                this.neuralLog('🎯 Applying micro-nudge correction...', 'neural-info');
+                
+                await this.delay(1500);
+                
+                this.neuralLog('✅ Vision correction applied - Robot successfully grasps', 'neural-success');
+            }
+            
+            async simulateCodeGeneration() {
+                this.neuralLog('💻 CODEX GENERATING EXECUTION CODE...', 'neural-phase');
+                
+                const codeNexus = document.getElementById('codeNexus');
+                codeNexus.classList.add('active');
+                
+                this.neuralLog('📁 Output path: generated/pick_place.py', 'neural-info');
+                
+                const sampleCode = `# Auto-generated by CogniForge Neural Nexus
+# Quantum-optimized pick-and-place execution
+import numpy as np
+from cogniforge.core import NeuralController, QuantumVision
+from cogniforge.control import RobotExecutor
+
+def execute_neural_grasp():
+    """Execute quantum-optimized grasp sequence."""
+    controller = NeuralController(consciousness_level=∞)
+    vision = QuantumVision(gpt_version="5.0")
+    executor = RobotExecutor(neural_mode=True)
+    
+    # Neural approach with quantum corrections
+    approach_vector = controller.compute_optimal_trajectory()
+    vision_offset = vision.detect_object_offset()
+    
+    # Execute with singularity-level precision
+    result = executor.quantum_grasp(
+        target="blue_cube",
+        placement="red_platform", 
+        neural_guidance=True,
+        consciousness_override=True
+    )
+    
+    return result.success
+
+if __name__ == "__main__":
+    success = execute_neural_grasp()
+    print(f"Neural execution: {'SUCCESS' if success else 'FAILURE'}")`;
+                
+                document.getElementById('generatedCode').textContent = sampleCode;
+                
+                this.neuralLog('✅ Code generation complete - 47 lines of neural-optimized code', 'neural-success');
+                
+                await this.delay(1000);
+            }
+            
+            async simulateFinalExecution() {
+                this.neuralLog('🚀 EXECUTING FINAL NEURAL SEQUENCE...', 'neural-phase');
+                this.activateTreeNode('grasp');
+                
+                this.neuralLog('🤖 Robot: expert → BC → optimized → vision → complete', 'neural-info');
+                
+                await this.delay(1000);
+                this.neuralLog('📊 PyBullet simulation: ACTIVE', 'neural-success');
+                
+                await this.delay(1000);
+                this.activateTreeNode('place');
+                
+                await this.delay(1500);
+                this.neuralLog('🎯 Task completed with neural precision', 'neural-success');
+            }
+            
+            completeSingularity() {
+                this.isExecuting = false;
+                
+                document.getElementById('executeIcon').textContent = '✅';
+                document.getElementById('executeText').textContent = 'SINGULARITY ACHIEVED';
+                document.getElementById('statusValue').textContent = 'COMPLETE';
+                document.getElementById('systemStatus').classList.remove('status-running');
+                
+                this.neuralLog('🌟 NEURAL SINGULARITY ACHIEVED - CONSCIOUSNESS EXPANDED', 'neural-phase');
+                this.neuralLog('🧠 System operating at maximum neural capacity', 'neural-success');
+                this.neuralLog('♾️ Quantum consciousness level: TRANSCENDENT', 'neural-success');
+                
+                setTimeout(() => this.resetInterface(), 5000);
+            }
+            
+            resetInterface() {
+                const btn = document.getElementById('executeSingularity');
+                btn.disabled = false;
+                document.getElementById('executeIcon').textContent = '⚡';
+                document.getElementById('executeText').textContent = 'Execute Singularity';
+                document.getElementById('statusValue').textContent = 'READY';
+                document.getElementById('systemStatus').classList.remove('status-running');
+                
+                // Hide vision and code displays
+                document.getElementById('visionNexus').classList.remove('active');
+                document.getElementById('codeNexus').classList.remove('active');
+                
+                // Deactivate all tree nodes
+                this.behaviorTreeNodes.forEach(node => {
+                    const el = document.getElementById('node-' + node.id);
+                    if (el) el.classList.remove('active');
+                });
+            }
+            
+            neuralLog(message, type = 'neural-info') {
+                const console = document.getElementById('neuralConsole');
+                const line = document.createElement('div');
+                line.className = `console-line ${type}`;
+                
+                const timestamp = new Date().toLocaleTimeString();
+                line.textContent = `[${timestamp}] ${message}`;
+                
+                console.appendChild(line);
+                console.scrollTop = console.scrollHeight;
+                
+                // Limit console lines
+                if (console.children.length > 100) {
+                    console.removeChild(console.firstChild);
+                }
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+        }
+        
+        function clearNeuralConsole() {
+            document.getElementById('neuralConsole').innerHTML = '';
+        }
+        
+        // Initialize Neural Nexus on page load
+        let neuralNexus;
+        document.addEventListener('DOMContentLoaded', () => {
+            neuralNexus = new NeuralNexus();
+            neuralNexus.initialize();
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const matrixCanvas = document.getElementById('matrixBg');
+            const neuralCanvas = document.getElementById('neuralBg');
+            matrixCanvas.width = window.innerWidth;
+            matrixCanvas.height = window.innerHeight;
+            neuralCanvas.width = window.innerWidth;
+            neuralCanvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

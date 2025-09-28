@@ -169,6 +169,50 @@ def fix_common_json_errors(json_str: str) -> str:
     return json_str
 
 
+def _call_openai_for_weights(task_description: str) -> Optional[str]:
+    """Call OpenAI Responses API to get weights as JSON text. Returns response text or None."""
+    try:
+        from cogniforge.core.config import settings
+        client = settings.get_openai_client()
+
+        system_prompt = (
+            "You are GPT-5, a reward function designer. Return ONLY a JSON object with weights "
+            "for keys: dist, grasp, collision, success, time, smooth, orientation."
+        )
+        prompt = create_gpt5_prompt(task_description)
+        inputs = [
+            {"role": "system", "content": [{"type": "input_text", "text": system_prompt}]},
+            {"role": "user", "content": [{"type": "input_text", "text": prompt}]},
+        ]
+        resp = client.responses.create(
+            model="gpt-5",
+            input=inputs,
+            response_format={"type": "json_object"},
+            max_output_tokens=300,
+            temperature=0.1,
+        )
+        if hasattr(resp, "output_text") and resp.output_text:
+            return resp.output_text
+        # Fallback parse
+        try:
+            parts = []
+            for item in getattr(resp, "output", []) or []:
+                for c in getattr(item, "content", []) or []:
+                    if hasattr(c, "text") and c.text:
+                        parts.append(c.text)
+            return "\n".join(parts) if parts else None
+        except Exception:
+            pass
+        if hasattr(resp, "choices"):
+            try:
+                return resp.choices[0].message.content
+            except Exception:
+                return None
+        return None
+    except Exception:
+        return None
+
+
 def generate_and_parse_weights(
     task_description: str,
     gpt_response_function: Optional[callable] = None,
@@ -218,9 +262,11 @@ def generate_and_parse_weights(
                 return default_weights
             raise
     else:
-        # Mock response for testing
-        logger.warning("No GPT function provided, using mock response")
-        response = '{"dist": -1.0, "grasp": 10.0, "collision": -5.0, "success": 100.0, "time": -0.1, "smooth": 0.5, "orientation": 2.0}'
+        # Try real API first; fall back to mock
+        response = _call_openai_for_weights(task_description)
+        if response is None:
+            logger.warning("OpenAI not configured or call failed; using mock response")
+            response = '{"dist": -1.0, "grasp": 10.0, "collision": -5.0, "success": 100.0, "time": -0.1, "smooth": 0.5, "orientation": 2.0}'
     
     # Parse response
     try:

@@ -1,0 +1,19 @@
+Expert Trajectory Collection Summary
+==================================================
+
+Environment: TestEnv
+Number of Trajectories: 2
+Collection Time: 2025-09-28T04:51:11.565962
+
+Trajectory 1:
+  - Steps: 10
+  - Total Reward: -0.84
+  - Success: True
+  - Duration: 0.00s
+
+Trajectory 2:
+  - Steps: 10
+  - Total Reward: -0.71
+  - Success: True
+  - Duration: 0.00s
+

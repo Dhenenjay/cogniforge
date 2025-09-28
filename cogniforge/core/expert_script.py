@@ -826,7 +826,7 @@ def _save_trajectory_data(data: Dict[str, Any], filepath: str) -> None:
     ext = os.path.splitext(filepath)[1].lower()
     
     if ext == '.json':
-        with open(filepath, 'w') as f:
+        with open(filepath, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, default=str)
     elif ext in ['.pkl', '.pickle']:
         with open(filepath, 'wb') as f:

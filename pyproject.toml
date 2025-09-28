@@ -5,13 +5,13 @@ description = "A Python project with FastAPI, PyBullet, and ML libraries"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 packages = [{include = "cogniforge"}]
-python = "^3.11"
+python = "^3.10"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 fastapi = "^0.115.0"
 uvicorn = {extras = ["standard"], version = "^0.32.0"}
-pybullet = "^3.2.6"
+pybullet = "^3.2.5"
 numpy = "^1.26.0"
 pillow = "^10.4.0"
 gymnasium = "^0.29.1"

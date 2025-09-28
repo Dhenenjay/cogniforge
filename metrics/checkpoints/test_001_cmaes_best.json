@@ -1,0 +1,11 @@
+{
+  "iteration": 9,
+  "best_cost": 40.65696597405991,
+  "mean_cost": 48.788359168871885,
+  "std_cost": 4.065696597405991,
+  "population_size": 20,
+  "sigma": 0.05,
+  "converged": false,
+  "improvement": 4.275930437662247,
+  "timestamp": "2025-09-28T10:54:24.334662"
+}

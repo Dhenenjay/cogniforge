@@ -1,0 +1,17 @@
+{
+  "request_id": "demo_1759073352",
+  "command": "Pick up the blue cube and place it on the green platform",
+  "trigger_demo": false,
+  "demo_type": "complete_3min_script",
+  "phases": [
+    "behavior_tree_generation",
+    "expert_demonstration",
+    "behavioral_cloning",
+    "optimization",
+    "vision_correction",
+    "code_generation",
+    "final_execution"
+  ],
+  "current_phase": "code_generation",
+  "phase_progress": "6/6"
+}

@@ -41,7 +41,7 @@ def ask_gpt_for_offset(
     base64_image: str,
     instruction: str = "Find the blue cube and return its pixel offset from image center",
     api_key: Optional[str] = None,
-    model: str = "gpt-4-vision-preview",
+    model: str = "gpt-5",
     max_tokens: int = 100,
     temperature: float = 0.1,
     timeout: float = 10.0,
@@ -110,24 +110,21 @@ def ask_gpt_for_offset(
     If the object is not found, return {"dx_px": 0, "dy_px": 0}.
     """
     
-    # Prepare the API request
-    messages = [
+    # Prepare the API request (Responses API)
+    inputs = [
         {
             "role": "system",
-            "content": system_prompt
+            "content": [
+                {"type": "input_text", "text": system_prompt}
+            ]
         },
         {
             "role": "user",
             "content": [
+                {"type": "input_text", "text": user_prompt},
                 {
-                    "type": "text",
-                    "text": user_prompt
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/jpeg;base64,{base64_image}"
-                    }
+                    "type": "input_image",
+                    "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}
                 }
             ]
         }
@@ -136,16 +133,37 @@ def ask_gpt_for_offset(
     # Try to get response with retries
     for attempt in range(retry_count):
         try:
-            response = client.chat.completions.create(
+            response = client.responses.create(
                 model=model,
-                messages=messages,
-                max_tokens=max_tokens,
+                input=inputs,
+                max_output_tokens=max_tokens,
                 temperature=temperature,
-                response_format={"type": "json_object"}  # Force JSON response
+                response_format={"type": "json_object"}
             )
             
-            # Extract the response text
-            response_text = response.choices[0].message.content.strip()
+            # Extract the response text (handle different client versions)
+            response_text = None
+            if hasattr(response, "output_text"):
+                response_text = response.output_text
+            else:
+                try:
+                    # Fallback parsing from structured output
+                    chunks = []
+                    for item in getattr(response, "output", []) or []:
+                        for c in getattr(item, "content", []) or []:
+                            if hasattr(c, "text") and c.text:
+                                chunks.append(c.text)
+                    response_text = "\n".join(chunks) if chunks else None
+                except Exception:
+                    response_text = None
+            if not response_text and hasattr(response, "choices"):
+                # Very defensive fallback if server returned chat-like payload
+                try:
+                    response_text = response.choices[0].message.content.strip()
+                except Exception:
+                    response_text = None
+            if not response_text:
+                raise ValueError("Empty response from model")
             
             # Parse JSON response
             try:
@@ -211,7 +229,7 @@ def ask_gpt_for_offset_simple(
         base64_image,
         instruction,
         api_key,
-        model="gpt-4-vision-preview",
+        model="gpt-5",
         max_tokens=50,
         temperature=0.0,
         timeout=5.0,

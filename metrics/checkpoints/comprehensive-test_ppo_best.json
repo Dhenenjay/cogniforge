@@ -1,0 +1,12 @@
+{
+  "episode": 3,
+  "average_reward": -1.0,
+  "min_reward": -3.0,
+  "max_reward": 1.0,
+  "value_loss": 0.03333333333333333,
+  "policy_loss": 0.016666666666666666,
+  "entropy": 0.35,
+  "explained_variance": null,
+  "kl_divergence": null,
+  "timestamp": "2025-09-27T16:56:56.780496"
+}

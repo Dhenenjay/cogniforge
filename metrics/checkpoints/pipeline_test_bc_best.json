@@ -1,0 +1,10 @@
+{
+  "epoch": 4,
+  "loss": 0.30119421191220214,
+  "learning_rate": 0.001,
+  "batch_size": 32,
+  "accuracy": null,
+  "validation_loss": null,
+  "gradient_norm": null,
+  "timestamp": "2025-09-28T10:54:24.802307"
+}

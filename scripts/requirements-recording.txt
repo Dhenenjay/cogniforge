@@ -1,0 +1,21 @@
+# Requirements for demo recording scripts
+# Install with: pip install -r requirements-recording.txt
+
+# Core dependencies
+numpy>=1.21.0
+pillow>=9.0.0
+
+# Video recording and processing
+opencv-python>=4.5.0
+imageio>=2.9.0
+imageio-ffmpeg>=0.4.5
+
+# PyBullet for robot simulation
+pybullet>=3.2.0
+
+# API interaction (for demos)
+requests>=2.28.0
+
+# Optional but recommended
+matplotlib>=3.5.0  # For plotting metrics
+tqdm>=4.64.0       # For progress bars

@@ -1,0 +1,122 @@
+[
+  {
+    "timestamp": "2025-09-28T04:34:12.966755",
+    "script": "src\\motion_controller.py",
+    "mode": "demo",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 1.0865697860717773
+  },
+  {
+    "timestamp": "2025-09-28T04:34:13.071980",
+    "script": "src\\waypoint_optimizer.py",
+    "mode": "demo",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 0.10279083251953125
+  },
+  {
+    "timestamp": "2025-09-28T04:34:14.358939",
+    "script": "src\\bc_trainer_enhanced.py",
+    "mode": "demo",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 1.2845189571380615
+  },
+  {
+    "timestamp": "2025-09-28T04:34:14.457072",
+    "script": "src\\behavior_tree_json.py",
+    "mode": "demo",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 0.09512948989868164
+  },
+  {
+    "timestamp": "2025-09-28T04:34:14.831453",
+    "script": "src\\vision_system.py",
+    "mode": "demo",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 0.37238144874572754
+  },
+  {
+    "timestamp": "2025-09-28T04:34:15.948423",
+    "script": "src\\expert_collector.py",
+    "mode": "demo",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 1.1159694194793701
+  },
+  {
+    "timestamp": "2025-09-28T04:52:35.993743",
+    "script": "src\\motion_controller.py",
+    "mode": "production",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 1.1661150455474854
+  },
+  {
+    "timestamp": "2025-09-28T04:52:36.111882",
+    "script": "src\\waypoint_optimizer.py",
+    "mode": "production",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 0.11522269248962402
+  },
+  {
+    "timestamp": "2025-09-28T04:52:37.543180",
+    "script": "src\\bc_trainer_enhanced.py",
+    "mode": "production",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 1.4293501377105713
+  },
+  {
+    "timestamp": "2025-09-28T04:52:37.650799",
+    "script": "src\\behavior_tree_json.py",
+    "mode": "production",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 0.10562372207641602
+  },
+  {
+    "timestamp": "2025-09-28T04:52:38.083422",
+    "script": "src\\vision_system.py",
+    "mode": "production",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 0.4286158084869385
+  },
+  {
+    "timestamp": "2025-09-28T04:52:38.201329",
+    "script": "src\\expert_collector.py",
+    "mode": "production",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 0.11590743064880371
+  },
+  {
+    "timestamp": "2025-09-28T04:53:21.732790",
+    "script": "src\\motion_controller.py",
+    "mode": "production",
+    "success": false,
+    "return_code": 1,
+    "execution_time": 1.1945116519927979
+  },
+  {
+    "timestamp": "2025-09-28T04:53:21.855145",
+    "script": "src\\waypoint_optimizer.py",
+    "mode": "production",
+    "success": true,
+    "return_code": 0,
+    "execution_time": 0.12135148048400879
+  },
+  {
+    "timestamp": "2025-09-28T04:53:38.547708",
+    "script": "src\\bc_trainer_enhanced.py",
+    "mode": "production",
+    "success": true,
+    "return_code": 0,
+    "execution_time": 16.67816734313965
+  }
+]

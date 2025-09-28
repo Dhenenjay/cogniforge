@@ -10,6 +10,10 @@ import sys
 from typing import Dict, Any, Optional, Tuple
 from datetime import datetime
 import numpy as np
+from colorama import init, Fore, Back, Style
+
+# Initialize colorama for Windows color support
+init(autoreset=True)
 
 
 class VisionUIFormatter:
@@ -17,7 +21,38 @@ class VisionUIFormatter:
     Formats vision detection results for UI display.
     
     Ensures all results are printed as JSON, even when offsets are zero.
+    Colors (dx, dy) text green when |dx|,|dy| < 3 px; otherwise amber.
     """
+    
+    @staticmethod
+    def format_offset_with_color(dx_px: int, dy_px: int, use_colors: bool = True) -> str:
+        """
+        Format pixel offset with color coding.
+        Green when |dx|,|dy| < 3 px (well-aligned), amber otherwise.
+        
+        Args:
+            dx_px: X pixel offset
+            dy_px: Y pixel offset
+            use_colors: Whether to apply colors
+            
+        Returns:
+            Formatted offset string with color
+        """
+        # Check if well-aligned (both offsets < 3 pixels)
+        is_aligned = abs(dx_px) < 3 and abs(dy_px) < 3
+        
+        # Format the offset string
+        offset_str = f"({dx_px:+3d}, {dy_px:+3d})"
+        
+        if use_colors:
+            if is_aligned:
+                # Green for well-aligned
+                return f"{Fore.GREEN}{offset_str}{Style.RESET_ALL}"
+            else:
+                # Amber/Yellow for needs adjustment
+                return f"{Fore.YELLOW}{offset_str}{Style.RESET_ALL}"
+        
+        return offset_str
     
     @staticmethod
     def print_vision_result(
@@ -140,8 +175,19 @@ class VisionUIFormatter:
         
         # Always print for UI (even if aligned)
         if force_print or not is_aligned:
+            # Print header with colored offset
             print("\n" + "="*60, file=stream)
-            print("VISION DETECTION RESULT (UI JSON):", file=stream)
+            
+            # Format offset with color
+            colored_offset = VisionUIFormatter.format_offset_with_color(dx_px, dy_px)
+            
+            # Alignment indicator
+            if abs(dx_px) < 3 and abs(dy_px) < 3:
+                align_status = f"{Fore.GREEN}✓ ALIGNED{Style.RESET_ALL}"
+            else:
+                align_status = f"{Fore.YELLOW}⚡ ADJUSTMENT NEEDED{Style.RESET_ALL}"
+            
+            print(f"VISION DETECTION RESULT {colored_offset} {align_status}", file=stream)
             print(json.dumps(result, indent=2), file=stream)
             print("="*60 + "\n", file=stream)
         

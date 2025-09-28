@@ -88,7 +88,12 @@ class TestRobotSimulator:
 
     @patch("pybullet.connect")
     @patch("pybullet.disconnect")
-    def test_disconnect(self, mock_disconnect, mock_connect):
+    @patch("pybullet.setAdditionalSearchPath")
+    @patch("pybullet.setGravity")
+    @patch("pybullet.setTimeStep")
+    @patch("pybullet.setPhysicsEngineParameter")
+    @patch("pybullet.setRealTimeSimulation")
+    def test_disconnect(self, mock_rt, mock_engine, mock_ts, mock_grav, mock_path, mock_disconnect, mock_connect):
         """Test disconnecting from PyBullet."""
         mock_connect.return_value = 0
         
@@ -981,9 +986,11 @@ class TestRobotSimulator:
         """Test open_gripper on robot without gripper."""
         sim = RobotSimulator()
         sim.robots["no_gripper"] = RobotInfo(
-            robot_id=1,
-            robot_name="no_gripper",
+            name="no_gripper",
+            robot_id=2,
             robot_type=RobotType.UR5,
+            base_position=(0, 0, 0),
+            base_orientation=(0, 0, 0, 1),
             num_joints=6,
             joint_indices=list(range(6)),
             end_effector_index=5,
@@ -1219,9 +1226,11 @@ class TestRobotSimulator:
         
         # Create a mock robot
         sim.robots["test"] = RobotInfo(
-            robot_id=1,
-            robot_name="test",
+            name="test",
+            robot_id=2,
             robot_type=RobotType.KUKA_IIWA,
+            base_position=(0, 0, 0),
+            base_orientation=(0, 0, 0, 1),
             num_joints=7,
             joint_indices=list(range(7)),
             end_effector_index=6,
@@ -1465,9 +1474,11 @@ class TestRobotSimulator:
         """Test move_through_waypoints with empty waypoints list."""
         sim = RobotSimulator()
         sim.robots["test"] = RobotInfo(
-            robot_id=1,
-            robot_name="test",
+            name="test",
+            robot_id=2,
             robot_type=RobotType.KUKA_IIWA,
+            base_position=(0, 0, 0),
+            base_orientation=(0, 0, 0, 1),
             num_joints=7,
             joint_indices=list(range(7)),
             end_effector_index=6,
@@ -1482,9 +1493,11 @@ class TestRobotSimulator:
         """Test move_through_waypoints with invalid waypoint format."""
         sim = RobotSimulator()
         sim.robots["test"] = RobotInfo(
-            robot_id=1,
-            robot_name="test",
+            name="test",
+            robot_id=2,
             robot_type=RobotType.KUKA_IIWA,
+            base_position=(0, 0, 0),
+            base_orientation=(0, 0, 0, 1),
             num_joints=7,
             joint_indices=list(range(7)),
             end_effector_index=6,

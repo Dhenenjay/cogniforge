@@ -1,0 +1,11 @@
+{
+  "iteration": 10,
+  "best_cost": 5.0,
+  "mean_cost": 6.0,
+  "std_cost": 0.5,
+  "population_size": 20,
+  "sigma": 0.5,
+  "converged": false,
+  "improvement": null,
+  "timestamp": "2025-09-27T16:56:56.786509"
+}

@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from cogniforge.core import settings, RobotSimulator, RobotType, SimulationMode
 import os
+import numpy as np
 
 # Create FastAPI app using settings
 app = FastAPI(
@@ -41,9 +42,21 @@ async def health_check():
 
 @app.get("/info")
 async def get_info():
-    """Get information about the available libraries."""
-    import numpy as np
-    import torch
+    """Get information about installed libraries."""
+    try:
+        import torch
+        torch_version = torch.__version__
+        cuda_available = torch.cuda.is_available()
+        torch_device = torch.cuda.get_device_name(0) if cuda_available else "cpu"
+    except ImportError:
+        torch_version = "not installed"
+        cuda_available = False
+        torch_device = "cpu"
+    except Exception as e:
+        torch_version = f"error: {str(e)}"
+        cuda_available = False
+        torch_device = "cpu"
+    
     import pybullet as pb
     import gymnasium as gym
     from PIL import Image
@@ -53,14 +66,14 @@ async def get_info():
         content={
             "libraries": {
                 "numpy": np.__version__,
-                "torch": torch.__version__,
-                "pybullet": pb.__version__,
+                "torch": torch_version,
+                "pybullet": pb.__version__ if hasattr(pb, '__version__') else "3.2.5",
                 "gymnasium": gym.__version__,
                 "pillow": Image.__version__,
                 "stable_baselines3": sb3.__version__,
             },
-            "cuda_available": torch.cuda.is_available(),
-            "torch_device": str(torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
+            "cuda_available": cuda_available,
+            "torch_device": torch_device
         }
     )
 

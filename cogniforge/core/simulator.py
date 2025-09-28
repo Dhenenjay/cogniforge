@@ -656,7 +656,8 @@ class RobotSimulator:
         
         for i in range(num_joints):
             joint_info = p.getJointInfo(robot_id, i)
-            link_name = joint_info[12].decode('utf-8') if joint_info[12] else ""
+            # joint_info[12] is the link name, but check if it exists
+            link_name = joint_info[12].decode('utf-8') if len(joint_info) > 12 and joint_info[12] else ""
             
             # Check if link name matches any of the target names
             for name in names:
@@ -4336,7 +4337,7 @@ class RobotSimulator:
         
         return result
 
-    def disconnect(self):
+    def remove_object(self, object_name: str):
         """
         Remove an object from the simulation.
 

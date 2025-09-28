@@ -1,0 +1,27 @@
+{
+  "object": "small_box",
+  "object_dimensions": {
+    "width": 0.04,
+    "height": 0.04,
+    "depth": 0.04,
+    "weight": 0.1
+  },
+  "gripper_config": {
+    "finger_opening": 0.06999999999999999,
+    "approach_opening": 0.08,
+    "grasp_opening": 0.06,
+    "grasp_force": 3.9240000000000004
+  },
+  "approach_config": {
+    "pre_grasp_offset": 0.024,
+    "post_grasp_offset": 0.0168,
+    "grasp_depth": 0.032,
+    "approach_speed": 0.05,
+    "grasp_speed": 0.02
+  },
+  "safety_margins": {
+    "finger_clearance": 0.005,
+    "collision_threshold": 0.005,
+    "force_threshold": 50.0
+  }
+}

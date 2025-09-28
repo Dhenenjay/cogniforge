@@ -12,6 +12,14 @@ from typing import Dict, List, Any, Optional, Union, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
 
+# Import tree visualizer for pretty printing
+try:
+    from .tree_visualizer import print_behavior_tree, BehaviorTreePrinter
+except ImportError:
+    # Fallback if visualizer not available
+    print_behavior_tree = None
+    BehaviorTreePrinter = None
+
 # Configure logging
 logger = logging.getLogger(__name__)
 
@@ -207,13 +215,15 @@ class TaskPlanner:
                     type=NodeType.PICK.value,
                     object=objects[0]
                 ))
-            elif action == 'place' and objects:
+            elif action == 'place':
                 place_node = BehaviorNode(
                     type=NodeType.PLACE.value,
                     object=objects[0] if objects else None
                 )
                 if target:
                     place_node.target = target
+                elif len(objects) > 1:
+                    place_node.target = objects[1]
                 nodes.append(place_node)
             elif action == 'move' and objects:
                 if len(objects) >= 2:
@@ -342,7 +352,7 @@ class TaskPlanner:
         
         return nodes
     
-    def plan_to_behavior_tree(self, prompt: str) -> List[Dict[str, Any]]:
+    def plan_to_behavior_tree(self, prompt: str, print_tree: bool = True) -> List[Dict[str, Any]]:
         """
         Convert a natural language prompt to a behavior tree representation.
         
@@ -394,14 +404,32 @@ class TaskPlanner:
             )]
         
         # Convert to dictionary format
-        return [node.to_dict() for node in nodes]
+        result = [node.to_dict() for node in nodes]
+        
+        # Print the tree in a pretty box if enabled
+        if print_tree and print_behavior_tree is not None:
+            print("\n" + "="*80)
+            print(" 🎯 BEHAVIOR TREE PLANNING COMPLETED ")
+            print("="*80 + "\n")
+            print_behavior_tree(result, f"Task: {prompt[:50]}..." if len(prompt) > 50 else f"Task: {prompt}", 
+                              format="box", show_stats=True)
+            print("\n" + "="*80 + "\n")
+        elif print_tree:
+            # Fallback to simple JSON printing if visualizer not available
+            print("\n" + "="*80)
+            print(" BEHAVIOR TREE GENERATED ")
+            print("="*80)
+            print(json.dumps(result, indent=2))
+            print("="*80 + "\n")
+        
+        return result
 
 
 # Global planner instance
 _planner = TaskPlanner()
 
 
-def plan_to_behavior_tree(prompt: str) -> List[Dict[str, Any]]:
+def plan_to_behavior_tree(prompt: str, print_tree: bool = True) -> List[Dict[str, Any]]:
     """
     Convert a natural language prompt to a behavior tree representation.
     
@@ -466,7 +494,7 @@ def plan_to_behavior_tree(prompt: str) -> List[Dict[str, Any]]:
             }
         ]
     """
-    return _planner.plan_to_behavior_tree(prompt)
+    return _planner.plan_to_behavior_tree(prompt, print_tree=print_tree)
 
 
 def create_pick_place_sequence(obj: str, target: str) -> List[Dict[str, Any]]:
@@ -632,11 +660,11 @@ if __name__ == "__main__":
         print(f"\nPrompt: {prompt}")
         print("-" * 50)
         
-        nodes = plan_to_behavior_tree(prompt)
-        print(json.dumps(nodes, indent=2))
+        # Plan and print the tree (automatically prints in box format)
+        nodes = plan_to_behavior_tree(prompt, print_tree=True)
         
         # Validate the generated tree
         if validate_behavior_tree(nodes):
-            print("✓ Valid behavior tree")
+            print("✅ Valid behavior tree generated successfully!")
         else:
-            print("✗ Invalid behavior tree")
+            print("❌ Warning: Generated tree failed validation")

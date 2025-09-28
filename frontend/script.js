@@ -8,7 +8,7 @@
 // ============================================================================
 
 const CONFIG = {
-    API_BASE: 'http://localhost:8000',
+    API_BASE: 'http://localhost:8001',  // Updated port for working API
     SSE_RECONNECT_DELAY: 3000,
     CHART_MAX_POINTS: 50,
     LOG_MAX_LINES: 1000,
@@ -476,6 +476,12 @@ class ChartManager {
         const ctx = document.getElementById('lossChart');
         if (!ctx) return;
         
+        // Destroy existing chart if it exists
+        if (appState.charts.loss) {
+            appState.charts.loss.destroy();
+            appState.charts.loss = null;
+        }
+        
         appState.charts.loss = new Chart(ctx.getContext('2d'), {
             type: 'line',
             data: {
@@ -584,6 +590,12 @@ class ChartManager {
     static initializeRewardChart() {
         const ctx = document.getElementById('rewardChart');
         if (!ctx) return;
+        
+        // Destroy existing chart if it exists
+        if (appState.charts.reward) {
+            appState.charts.reward.destroy();
+            appState.charts.reward = null;
+        }
         
         appState.charts.reward = new Chart(ctx.getContext('2d'), {
             type: 'line',
@@ -1341,7 +1353,7 @@ class TaskExecutor {
         Logger.log(`Configuration: Vision=${request.use_vision}, GPT=${request.use_gpt_reward}, Dry Run=${request.dry_run}`, 'info');
         
         try {
-            // Send execution request
+            // Send execution request to REAL CogniForge endpoint
             const response = await fetch(`${CONFIG.API_BASE}/execute`, {
                 method: 'POST',
                 headers: {
